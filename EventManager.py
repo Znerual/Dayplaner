@@ -1,4 +1,3 @@
-import Event
 
 class EventManager:
     events = []

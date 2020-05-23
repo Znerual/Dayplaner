@@ -1,4 +1,3 @@
-from Event import Event
 import tkinter
 from Objekt import Objekt
 from ScreenManager import ScreenManager

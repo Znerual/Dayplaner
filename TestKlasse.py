@@ -2,7 +2,7 @@ import unittest
 from Zeit import Zeit
 
 
-class TestZeit(unittest.TestCase):
+class TestKlasse(unittest.TestCase):
     def test_Zeit_von_String(self):
         test1 = "13"
         test2 = "25"
@@ -45,5 +45,16 @@ class TestZeit(unittest.TestCase):
         self.assertEqual(str(zeit1 - zeit2), "Zeit 12:35")
         self.assertEqual(str(zeit1 - zeit3), "Zeit 10:55")
         #self.assertIsNone(str(zeit3 - zeit4))
+    def test_groesser(self):
+        zeit1 = Zeit(14, 35)
+        zeit2 = Zeit(2, 0)
+        zeit3 = Zeit(2, 0)
+        zeit4 = Zeit(12, 30)
+
+        self.assertTrue(zeit1 > zeit2)
+        self.assertTrue(zeit1 > zeit4)
+        self.assertFalse(zeit2 > zeit3)
+        self.assertFalse(zeit4 > zeit1)
+
 if __name__ == '__main__':
     unittest.main()
