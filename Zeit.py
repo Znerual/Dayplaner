@@ -73,10 +73,10 @@ class Zeit(Objekt):
         return False
 
     def __lt__(self, other):
-        return not (self > other)
+        return not (self >= other)
 
     def __le__(self, other):
-        return not (self >= other)
+        return not (self > other)
 
     def __sub__(self, other):
         assert (not (self.event != None and other.evet != None))

@@ -56,5 +56,23 @@ class TestKlasse(unittest.TestCase):
         self.assertFalse(zeit2 > zeit3)
         self.assertFalse(zeit4 > zeit1)
 
+    def test_groesser_gleich(self):
+        zeit1 = Zeit(14, 35)
+        zeit2 = Zeit(2, 0)
+        zeit4 = Zeit(12, 30)
+
+        self.assertTrue(zeit2 >= zeit2)
+        self.assertFalse(zeit4 >= zeit1)
+        self.assertTrue(zeit1 >= zeit2)
+
+    def test_kleiner(self):
+        zeit1 = Zeit(14, 35)
+        zeit2 = Zeit(2, 0)
+        zeit3 = Zeit(12, 30)
+
+        self.assertTrue(zeit2 < zeit1)
+        self.assertTrue(zeit3 < zeit1)
+        self.assertFalse(zeit3 < zeit2)
+        self.assertFalse(zeit2 < zeit2)
 if __name__ == '__main__':
     unittest.main()
