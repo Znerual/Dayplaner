@@ -56,6 +56,9 @@ class Zeit(Objekt):
         if (minute >= 60):
             stunde += 1
             minute -= 60
+        if (minute < 0):
+            stunde -= 1
+            minute += 60
         event = self.event
         if (event == None):
             event = other.event
@@ -85,11 +88,19 @@ class Zeit(Objekt):
         if (minute < 0):
             stunde -= 1
             minute += 60
-        assert (self.stunde - other.stunde >= 0)
+        if (minute > 60):
+            stunde += 1
+            minute -= 60
+
         event = self.event
         if (event == None):
             event = other.event
         return Zeit(stunde, minute, event)
+
+    def set(self, other):
+        self.stunde = other.stunde
+        self.minute = other.minute
+        self.text = other.text
 
     def circa(self, zeit):
         if (abs(self.stunde - zeit.stunde) <= Zeit.toleranz[0] and abs(self.minute - zeit.minute) <= Zeit.toleranz[1]):
@@ -108,7 +119,7 @@ class Zeit(Objekt):
             nach = Zeit.fromString(self.text)
             if (nach != None):
                 if self.event != None:
-                    EventManager.verschiebeEventNach(self.event, event.istStartzeit(), nach)
+                    EventManager.verschiebeZeitNach(self.event, event.istStartzeit(), nach)
                     # überprüft ob die Zeit die Start oder Endzeit ist wenn sie einem Event zugeordnet ist
                     assert (self.istStartzeit() or self.istEndzeit())
                     assert (not self.istStartzeit() and self.istEndzeit())
