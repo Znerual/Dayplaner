@@ -12,10 +12,11 @@ class EventManager:
         # passe das einzufügende Event an die Lücke an, dh überprüfen ob es überschneidungen gibt, Verknüpfungen
         # erstellen und nicht wie beim VerschiebenNach das andere Event anpassen, sonder das neue Event anpassen
         geschnitten = False
+        beruehrt = False
         for oevent in EventManager.events:
             if event.schneiden(oevent):
                 geschnitten = True
-                if event.startzeit < oevent.startzeit <= event.endzeit:  # Event liegt oberhalb von OEvent
+                if event.startzeit < oevent.startzeit < event.endzeit:  # Event liegt oberhalb von OEvent
                     EventManager.verschiebeZeitNach(event, False, oevent.startzeit)
                     EventManager.addEvent(event)
                     return
@@ -29,9 +30,12 @@ class EventManager:
                     EventManager.verschiebeZeitNach(event, True, event.startzeit)
                     EventManager.verschiebeZeitNach(event, False, event.endzeit)
                     EventManager.events.append(event)
+            elif event.beruehrt(oevent):
+                beruehrt = True
         if not geschnitten:
-            EventManager.verschiebeZeitNach(event, True, event.startzeit)
-            EventManager.verschiebeZeitNach(event, False, event.endzeit)
+            if beruehrt:
+                EventManager.verschiebeZeitNach(event, True, event.startzeit)
+                EventManager.verschiebeZeitNach(event, False, event.endzeit)
             EventManager.events.append(event)
 
     @staticmethod
@@ -119,23 +123,27 @@ class EventManager:
         # verschoben sonder gekürzt
         otherEvents = list(filter(lambda x: x != event, EventManager.events))
         for oevent in otherEvents:
-            if event.beruehrt(oevent):
-                if (
-                        oevent.startzeit >= event.startzeit and oevent.endzeit <= event.endzeit):  # das Event liegt im neuen Element
+            if event.schneiden(oevent):
+                if oevent.startzeit > event.startzeit and oevent.endzeit < event.endzeit:  # das Event liegt im neuen Element
                     EventManager.removeEvent(oevent)
                     break
-                elif (
-                        oevent.startzeit <= event.startzeit <= oevent.endzeit):  # anderes Event schneidet von oben hinein
+                elif oevent.startzeit < event.startzeit < oevent.endzeit:  # anderes Event schneidet von oben hinein
                     oevent.endzeit.set(event.startzeit)
                     oevent.eventDanach = event
                     event.eventDavor = oevent
                     break
-                elif (
-                        oevent.startzeit >= event.startzeit and oevent.endzeit >= event.endzeit):  # anderes event runtscht von unten hinein
+                elif oevent.startzeit > event.startzeit and oevent.endzeit > event.endzeit:  # anderes event runtscht von unten hinein
                     oevent.startzeit.set(event.endzeit)
                     oevent.eventDavor = event
                     event.eventDanach = oevent
                     break
+            elif event.beruehrt(oevent):
+                if istStartzeit and oevent.endzeit == event.startzeit:
+                    event.eventDavor = oevent
+                    oevent.eventDanach = event
+                elif not istStartzeit and oevent.startzeit == event.endzeit:
+                    event.eventDanach = oevent
+                    oevent.eventDavor = event
 
     # Methode um Event in zwei kleinere Events zur Zeit zeit aufzuspalten
     @staticmethod
