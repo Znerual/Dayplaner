@@ -10,6 +10,9 @@ class Event(Objekt):
         self.startzeit = startzeit
         self.endzeit = endzeit
 
+        self.startzeit.setEvent(self)
+        self.endzeit.setEvent(self)
+
         self.text = ""
         self.eventDavor = None
         self.eventDanach = None
@@ -17,7 +20,7 @@ class Event(Objekt):
         self.istPause = istPause
 
     def __str__(self):
-        return "Event: " + str(self.startzeit) + ":" + str(self.endzeit)
+        return f"Start {self.startzeit.stunde:02}:{self.startzeit.minute:02} Ende {self.endzeit.stunde:02}:{self.endzeit.minute:02}"
 
     def schneiden(self, other):
         if (Zeit.distanz(self.startzeit, other.startzeit) <= min(Zeit.distanz(self.startzeit, self.endzeit),
@@ -47,7 +50,9 @@ class Event(Objekt):
         pass
 
     def fokusiere(self):
+        from ScreenManager import ScreenManager
         ScreenManager.canvas.tag_bind(str(self), "<Key>", self.callback_text)
 
     def unfokusiere(self):
+        from ScreenManager import ScreenManager
         ScreenManager.canvas.tag_unbind(str(self))

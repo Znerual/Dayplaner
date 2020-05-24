@@ -2,7 +2,7 @@ import unittest
 from Zeit import Zeit
 
 
-class TestKlasse(unittest.TestCase):
+class TestZeit(unittest.TestCase):
     def test_Zeit_von_String(self):
         test1 = "13"
         test2 = "25"

@@ -96,6 +96,9 @@ class Zeit(Objekt):
             event = other.event
         return Zeit(stunde, minute, event)
 
+    def setEvent(self, event):
+        self.event = event
+
     def set(self, other):
         self.stunde = other.stunde
         self.minute = other.minute
