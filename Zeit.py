@@ -6,9 +6,6 @@ from Objekt import Objekt
 class Zeit(Objekt):
     toleranz = (0, 5)
 
-    @staticmethod
-    def distanz(self, other):
-        return abs(self.stunde * 60 - other.stunde * 60 + self.minute - other.minute)
 
     # Bestimmt die Zeit aus einem String, kann entweder im Format 12 oder 12:00 gemacht werden
     @staticmethod
@@ -69,7 +66,7 @@ class Zeit(Objekt):
         if (self.minute > other.minute): return True
         return False
     def __ge__(self, other):
-        if (self.stunde >= other.stunde): return True
+        if (self.stunde > other.stunde): return True
         if (self.stunde < other.stunde): return False
         if (self.minute >= other.minute): return True
         return False
@@ -81,7 +78,6 @@ class Zeit(Objekt):
         return not (self > other)
 
     def __sub__(self, other):
-        assert (not (self.event != None and other.evet != None))
         stunde = self.stunde - other.stunde
         minute = self.minute - other.minute
         if (minute < 0):
@@ -95,6 +91,12 @@ class Zeit(Objekt):
         if (event == None):
             event = other.event
         return Zeit(stunde, minute, event)
+
+    def __eq__(self, other):
+        if self is None and other is None: return True
+        if self is None or other is None: return False
+        return (self.stunde == other.stunde and self.minute == other.minute)
+
 
     def setEvent(self, event):
         self.event = event

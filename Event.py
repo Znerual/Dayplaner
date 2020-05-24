@@ -23,9 +23,19 @@ class Event(Objekt):
     def __str__(self):
         return f"Start {self.startzeit.stunde:02}:{self.startzeit.minute:02} Ende {self.endzeit.stunde:02}:{self.endzeit.minute:02}"
 
+    def __eq__(self, other):
+        if self is None and other is None: return True
+        if self is None or other is None: return False
+        return self.endzeit == other.endzeit and self.startzeit == other.startzeit
+
     def schneiden(self, other):
-        if (Zeit.distanz(self.startzeit, other.startzeit) <= min(Zeit.distanz(self.startzeit, self.endzeit),
-                                                                Zeit.distanz(other.startzeit, other.endzeit))):
+        if ((self.endzeit > other.startzeit and self.startzeit < other.endzeit) or (other.startzeit < self.endzeit and other.endzeit > self.startzeit) ):
+            return True
+        return False
+
+    def beruehrt(self, other):
+        if ((self.endzeit >= other.startzeit and self.startzeit <= other.endzeit) or (
+                other.startzeit <= self.endzeit and other.endzeit >= self.startzeit)):
             return True
         return False
 
@@ -65,8 +75,8 @@ class Event(Objekt):
 
     def fokusiere(self):
         from ScreenManager import ScreenManager
-        ScreenManager.canvas.tag_bind(str(self), "<Key>", self.callback_text)
+        ScreenManager.canvas.tag_bind(self.form[0], "<Key>", self.callback_text)
 
     def unfokusiere(self):
         from ScreenManager import ScreenManager
-        ScreenManager.canvas.tag_unbind(str(self))
+        ScreenManager.canvas.tag_unbind(self.form[0])
