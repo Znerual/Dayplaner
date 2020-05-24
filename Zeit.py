@@ -1,7 +1,6 @@
-import tkinter
 from Objekt import Objekt
-from ScreenManager import ScreenManager
-from EventManager import EventManager
+
+
 
 
 class Zeit(Objekt):
@@ -114,6 +113,7 @@ class Zeit(Objekt):
         if self.circa(self.event.endzeit): return True
 
     def callback_verschiebe(self, event):
+        from EventManager import EventManager
         if (event.keysym == "Return"):
             self.unfokusiere()
             nach = Zeit.fromString(self.text)
@@ -139,7 +139,9 @@ class Zeit(Objekt):
         pass
 
     def fokusiere(self):
+        from ScreenManager import ScreenManager
         ScreenManager.canvas.tag_bind(str(self), "<Key>", self.callback_verschiebe)
 
     def unfokusiere(self):
+        from ScreenManager import ScreenManager
         ScreenManager.canvas.tag_unbind(str(self))

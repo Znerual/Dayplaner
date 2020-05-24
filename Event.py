@@ -1,6 +1,6 @@
 from Objekt import Objekt
-from ScreenManager import ScreenManager
-from EventManager import EventManager
+
+
 from Zeit import Zeit
 
 
@@ -32,15 +32,18 @@ class Event(Objekt):
             self.text = self.text[:-1]
         elif (event.keysym == "Delete"):
             self.unfokusiere()
+            from EventManager import EventManager
             EventManager.removeEvent(self)
         else:
             if self.istPause == False:
                 self.text += event.char
 
     def zeichne(self, screenManager):
+        from ScreenManager import ScreenManager
         pass
 
     def zeichneMarkiert(self, screenManager):
+        from ScreenManager import ScreenManager
         pass
 
     def fokusiere(self):
