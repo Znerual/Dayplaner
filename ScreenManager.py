@@ -8,7 +8,7 @@ class ScreenManager:
     canvasWidth = 0
     canvasHeight = 0
 
-    #ZeitZuPixel hat immer x = 0  und y als aktuelle Höhe
+    # ZeitZuPixel hat immer x = 0  und y als aktuelle Höhe
     @staticmethod
     def ZeitZuPixel(zeit):
         pass
@@ -21,7 +21,7 @@ class ScreenManager:
         self.root = Tk()
         ScreenManager.screenWidth = self.root.winfo_screenwidth()
         ScreenManager.screenHeight = self.root.winfo_screenheight()
-        self.root.geometry(f"{ScreenManager.screenWidth/3}x{ScreenManager.screenHeight}")
+        self.root.geometry(f"{ScreenManager.screenWidth / 3}x{ScreenManager.screenHeight}")
         ScreenManager.canvas = Canvas(self.root, bg="green", width=self.root.winfo_width(),
                                       height=self.root.winfo_height())  ##ndere white zu colormanager
         self.canvas.pack()

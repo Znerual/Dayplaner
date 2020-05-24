@@ -1,9 +1,6 @@
 from Objekt import Objekt
 
 
-from Zeit import Zeit
-
-
 class Event(Objekt):
 
     def __init__(self, startzeit, endzeit, istPause=False):
@@ -29,7 +26,8 @@ class Event(Objekt):
         return self.endzeit == other.endzeit and self.startzeit == other.startzeit
 
     def schneiden(self, other):
-        if ((self.endzeit > other.startzeit and self.startzeit < other.endzeit) or (other.startzeit < self.endzeit and other.endzeit > self.startzeit) ):
+        if (self.endzeit > other.startzeit and self.startzeit < other.endzeit) or (
+                other.startzeit < self.endzeit and other.endzeit > self.startzeit):
             return True
         return False
 
@@ -40,37 +38,34 @@ class Event(Objekt):
         return False
 
     def callback_text(self, event):
-        if (event.keysym == "Return"):
+        if event.keysym == "Return":
             self.unfokusiere()
-        elif (event.keysym == "BackSpace" and self.istPause == False):
+        elif event.keysym == "BackSpace" and not self.istPause:
             self.text = self.text[:-1]
-        elif (event.keysym == "Delete"):
+        elif event.keysym == "Delete":
             self.unfokusiere()
             from EventManager import EventManager
             EventManager.removeEvent(self)
         else:
-            if self.istPause == False:
+            if not self.istPause:
                 self.text += event.char
 
-    def zeichne(self, screenManager):
-        from ScreenManager import ScreenManager
-        #self.form.append("j") #wird mit allen benötigten Formen gefüllt, dh mit dem Grundrechteckt,dass gefüllt wird, Rahmen und Text
-        #self.form[0]
-        #if len(self.form) == 0:
+    def zeichne(self):
+        # self.form.append("j") #wird mit allen benötigten Formen gefüllt, dh mit dem Grundrechteckt,dass gefüllt wird, Rahmen und Text
+        # self.form[0]
+        # if len(self.form) == 0:
         #    ...
-        #ScreenManager.canvas #canvas zum zeichnen
-        #google nach canvas.move oder moveto ...
+        # ScreenManager.canvas #canvas zum zeichnen
+        # google nach canvas.move oder moveto ...
 
-        #from ScreenManager import ScreenManager
-        #sm = ScreenManager() erzeugt Canvas zum Testen, befüllt ScreenManager
+        # from ScreenManager import ScreenManager
+        # sm = ScreenManager() erzeugt Canvas zum Testen, befüllt ScreenManager
         pass
 
-    def zeichneMarkiert(self, screenManager):
-        from ScreenManager import ScreenManager
+    def zeichneMarkiert(self):
         pass
 
     def entferne(self):
-        from ScreenManager import ScreenManager
         pass
 
     def fokusiere(self):

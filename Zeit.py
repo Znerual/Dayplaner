@@ -1,30 +1,27 @@
 from Objekt import Objekt
 
 
-
-
 class Zeit(Objekt):
     toleranz = (0, 5)
-
 
     # Bestimmt die Zeit aus einem String, kann entweder im Format 12 oder 12:00 gemacht werden
     @staticmethod
     def fromString(text):
-        if (len(text) == 2):
+        if len(text) == 2:
             try:
                 stunde = int(text)
-                if (stunde >= 0 and stunde <= 24):
+                if 0 <= stunde <= 24:
                     zeit = Zeit(stunde, 0)
                     return zeit
                 else:
                     return None
             except ValueError:
                 return None
-        if (len(text) == 5):
+        if len(text) == 5:
             try:
                 stunde = int(text[0:2])
                 minute = int(text[3:5])
-                if (stunde >= 0 and stunde <= 24 and minute >= 0 and minute <= 60):
+                if 0 <= stunde <= 24 and 0 <= minute <= 60:
                     zeit = Zeit(stunde, minute)
                     return zeit
                 else:
@@ -38,37 +35,39 @@ class Zeit(Objekt):
         self.event = event
         self.text = f"{self.stunde:02}:{self.minute:02}"
         self.form = []
+
     def __str__(self):
-        if (self.event == None):
+        if self.event is None:
             return f"Zeit {self.stunde:02}:{self.minute:02}"
         else:
             return f"Zeit {self.stunde:02}:{self.minute:02} zu Event {self.event}"
 
     def __add__(self, other):
-        assert (not (self.event != None and other.evet != None))
+        assert (not (self.event is not None and other.evet is not None))
         assert (self.stunde + other.stunde + (self.minute + other.minute) / 60 <= 24)
         stunde = self.stunde + other.stunde
         minute = self.minute + other.minute
-        if (minute >= 60):
+        if minute >= 60:
             stunde += 1
             minute -= 60
-        if (minute < 0):
+        if minute < 0:
             stunde -= 1
             minute += 60
         event = self.event
-        if (event == None):
+        if event is None:
             event = other.event
         return Zeit(stunde, minute, event)
 
     def __gt__(self, other):
-        if (self.stunde > other.stunde): return True
-        if (self.stunde < other.stunde): return False
-        if (self.minute > other.minute): return True
+        if self.stunde > other.stunde: return True
+        if self.stunde < other.stunde: return False
+        if self.minute > other.minute: return True
         return False
+
     def __ge__(self, other):
-        if (self.stunde > other.stunde): return True
-        if (self.stunde < other.stunde): return False
-        if (self.minute >= other.minute): return True
+        if self.stunde > other.stunde: return True
+        if self.stunde < other.stunde: return False
+        if self.minute >= other.minute: return True
         return False
 
     def __lt__(self, other):
@@ -80,23 +79,22 @@ class Zeit(Objekt):
     def __sub__(self, other):
         stunde = self.stunde - other.stunde
         minute = self.minute - other.minute
-        if (minute < 0):
+        if minute < 0:
             stunde -= 1
             minute += 60
-        if (minute > 60):
+        if minute > 60:
             stunde += 1
             minute -= 60
 
         event = self.event
-        if (event == None):
+        if event is None:
             event = other.event
         return Zeit(stunde, minute, event)
 
     def __eq__(self, other):
         if self is None and other is None: return True
         if self is None or other is None: return False
-        return (self.stunde == other.stunde and self.minute == other.minute)
-
+        return self.stunde == other.stunde and self.minute == other.minute
 
     def setEvent(self, event):
         self.event = event
@@ -107,7 +105,7 @@ class Zeit(Objekt):
         self.text = other.text
 
     def circa(self, zeit):
-        if (abs(self.stunde - zeit.stunde) <= Zeit.toleranz[0] and abs(self.minute - zeit.minute) <= Zeit.toleranz[1]):
+        if abs(self.stunde - zeit.stunde) <= Zeit.toleranz[0] and abs(self.minute - zeit.minute) <= Zeit.toleranz[1]:
             return True
         return False
 
@@ -119,28 +117,30 @@ class Zeit(Objekt):
 
     def callback_verschiebe(self, event):
         from EventManager import EventManager
-        if (event.keysym == "Return"):
+        if event.keysym == "Return":
             self.unfokusiere()
             nach = Zeit.fromString(self.text)
-            if (nach != None):
-                if self.event != None:
+            if nach is not None:
+                if self.event is not None:
                     EventManager.verschiebeZeitNach(self.event, event.istStartzeit(), nach)
                     # überprüft ob die Zeit die Start oder Endzeit ist wenn sie einem Event zugeordnet ist
                     assert (self.istStartzeit() or self.istEndzeit())
                     assert (not self.istStartzeit() and self.istEndzeit())
                 else:
-                    self = nach
-        elif (event.keysym == "BackSpace" and self.istPause == False):
+                    self.stunde = nach.stunde
+                    self.minute = nach.minute
+                    self.text = nach.text
+        elif event.keysym == "BackSpace":
             self.text = self.text[:-1]
-        elif (event.keysym == "Delete"):
+        elif event.keysym == "Delete":
             self.unfokusiere()
         else:
             self.text += event.char
 
-    def zeichne(self, screenManager):
+    def zeichne(self):
         pass
 
-    def zeichneMarkiert(self, screenManager):
+    def zeichneMarkiert(self):
         pass
 
     def entferne(self):

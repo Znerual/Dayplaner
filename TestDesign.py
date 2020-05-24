@@ -1,5 +1,6 @@
 import unittest
 from Farbkonzept import Farbkonzept
+from tkinter import *
 
 
 class MyTestCase(unittest.TestCase):

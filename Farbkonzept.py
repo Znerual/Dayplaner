@@ -1,7 +1,5 @@
-from tkinter import *
 
-
-class Farbkonzept():
+class Farbkonzept:
     @staticmethod
     def vormittag(element):
         color = '#124356'

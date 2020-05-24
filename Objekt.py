@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 
+
 class Objekt(ABC):
     @abstractmethod
     def zeichne(self):
@@ -20,4 +21,3 @@ class Objekt(ABC):
     @abstractmethod
     def unfokusiere(self):
         pass
-
