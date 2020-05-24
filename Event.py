@@ -16,6 +16,7 @@ class Event(Objekt):
         self.text = ""
         self.eventDavor = None
         self.eventDanach = None
+        self.form = []
 
         self.istPause = istPause
 
@@ -43,9 +44,22 @@ class Event(Objekt):
 
     def zeichne(self, screenManager):
         from ScreenManager import ScreenManager
+        #self.form.append("j") #wird mit allen benötigten Formen gefüllt, dh mit dem Grundrechteckt,dass gefüllt wird, Rahmen und Text
+        #self.form[0]
+        #if len(self.form) == 0:
+        #    ...
+        #ScreenManager.canvas #canvas zum zeichnen
+        #google nach canvas.move oder moveto ...
+
+        #from ScreenManager import ScreenManager
+        #sm = ScreenManager() erzeugt Canvas zum Testen, befüllt ScreenManager
         pass
 
     def zeichneMarkiert(self, screenManager):
+        from ScreenManager import ScreenManager
+        pass
+
+    def entferne(self):
         from ScreenManager import ScreenManager
         pass
 

@@ -22,5 +22,7 @@ class TestEvent(unittest.TestCase):
         self.assertEqual(str(event1), "Start 14:00 Ende 15:00")
         self.assertEqual(str(zeit1), "Zeit 14:00 zu Event Start 14:00 Ende 15:00")
 
+
+
 if __name__ == '__main__':
     unittest.main()

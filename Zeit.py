@@ -40,7 +40,7 @@ class Zeit(Objekt):
         self.minute = minute
         self.event = event
         self.text = f"{self.stunde:02}:{self.minute:02}"
-
+        self.form = []
     def __str__(self):
         if (self.event == None):
             return f"Zeit {self.stunde:02}:{self.minute:02}"
@@ -139,6 +139,9 @@ class Zeit(Objekt):
         pass
 
     def zeichneMarkiert(self, screenManager):
+        pass
+
+    def entferne(self):
         pass
 
     def fokusiere(self):

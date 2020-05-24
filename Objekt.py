@@ -10,9 +10,14 @@ class Objekt(ABC):
         pass
 
     @abstractmethod
+    def entferne(self):
+        pass
+
+    @abstractmethod
     def fokusiere(self):
         pass
 
     @abstractmethod
     def unfokusiere(self):
         pass
+
