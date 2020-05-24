@@ -56,5 +56,31 @@ class EventManager:
                     break
 
     @staticmethod
-    def verschiebeEventUm(event, istStartzeit, zeit):
-        pass
+    def verschiebeEventUm(event, zeit):
+        event.startzeit += zeit
+        event.endzeit += zeit
+        if event.eventDanach != None:
+            event.eventDanach.startzeit += zeit
+            event.eventDanach.endzeit += zeit
+        otherEvents = list(filter(lambda x: x != event))
+        for oevent in otherEvents:
+            if (event.schneiden(oevent)):
+                if (oevent.startzeit >= event.startzeit and oevent.endzeit <= event.endzeit): # das Event liegt im neuen Element
+                    deltaZeit = event.endzeit - event.startzeit
+                    event.endzeit = oevent.startzeit
+                    event.startzeit = event.endzeit- deltaZeit
+                    event.eventDanach = oevent
+                    oevent.eventDavor = event
+                    break
+                elif (oevent.startzeit < event.startzeit and oevent.endzeit > event.startzeit): #anderes Event schneidet von oben hinein
+                    #sollte nicht eintreten, wenn die Zeit nur positiv ist
+                    event.startzeit = oevent.endzeit
+                    oevent.eventDanach = event
+                    event.eventDavor = oevent
+                    break
+                elif (oevent.startzeit > event.startzeit and oevent.endzeit > event.endzeit): #anderes event runtscht von unten hinein
+                    oevent.eventDavor = event
+                    event.eventDanach = oevent
+                    EventManager.verschiebeEventUm(oevent, event.endzeit - oevent.startzeit)
+                    break
+
