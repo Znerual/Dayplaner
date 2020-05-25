@@ -6,6 +6,23 @@ class EventManager:
     events = []
     mittagspause = Event(TimeManager.mittagspauseStart, TimeManager.mittagspauseEnde)
 
+    #Es hat passieren können das beim Verschieben zwei Elemente exakt übereinder ilegen und damit beide
+    # nicht in die oevents List hinzugefügt werden
+    @staticmethod
+    def getEventsWithoutEvent(event):
+        found = False
+        events = []
+        for ev in EventManager.events:
+            if found:
+                events.append(ev)
+            else:
+                if ev == event:
+                    found = True
+                else:
+                    events.append(ev)
+        return events
+
+
     @staticmethod
     def addEvent(event):
         if event.endzeit <= event.startzeit: return
@@ -17,13 +34,13 @@ class EventManager:
             if event.schneiden(oevent):
                 geschnitten = True
                 if event.startzeit < oevent.startzeit < event.endzeit:  # Event liegt oberhalb von OEvent
-                    EventManager.verschiebeZeitNach(event, False, oevent.startzeit)
+                    event.endzeit.set(oevent.startzeit)
                     EventManager.addEvent(event)
                     return
                 elif oevent.startzeit == event.startzeit and oevent.endzeit == event.endzeit:  # beide elemente decken sich komplett
                     return
                 elif event.startzeit < oevent.endzeit < event.endzeit:  # Event liegt unterhalb von oevent
-                    EventManager.verschiebeZeitNach(event, True, oevent.endzeit)
+                    event.startzeit.set(oevent.endzeit)
                     EventManager.addEvent(event)
                     return
                 else:  # das Element überlappt nicht aber berüht vl andere Events, rufe verschiebeZeitNach auf um Andocken rictig zu machen
@@ -44,7 +61,7 @@ class EventManager:
         if event.eventDanach is not None:
             event.eventDanach.eventDavor = None
         if event.eventDavor is not None:
-            event.eventDanach.eventDanach = None
+            event.eventDavor.eventDanach = None
 
         EventManager.events.remove(event)
 
@@ -54,15 +71,36 @@ class EventManager:
     # Falls nicht sucht es noch überschneidenden Elemente und verschiebt diese dann um die fehlende Differenz
     @staticmethod
     def verschiebeEventUm(event, zeit):
+        #sorgt dafür, dass bei Addition und Subtraktion das  Event in event.endzeit erhalten bleibt
+        zeit.event = None
+
+        # Prüft ob es Anhängende Events gib die leicht verschoben werden können
+        #Geht diese Rekursiv durch bis eines kein nächstes Event mehr hat
+        #if zeit > TimeManager.null: #verschiebung nach unten
+        #    if event.eventDanach is not None:
+        #        EventManager.verschiebeEventUm(event.eventDanach, zeit)
+        #elif zeit < TimeManager.null:
+        #    if event.eventDavor is not None:
+        #        EventManager.verschiebeEventUm(event.eventDavor, zeit)
+
+        #trenne die Verknüpfungen zu den Elementen von denen weggeschoben wird
+        if zeit > TimeManager.null and not event.eventDavor is None: #es wird nach unten geschoben
+            event.eventDavor.eventDanach = None
+            event.eventDavor = None
+        elif zeit < TimeManager.null and not event.eventDanach is None:
+            event.eventDanach.eventDavor = None
+            event.eventDanach = None
+
+        #verschiebe das Event
         event.startzeit += zeit
         event.endzeit += zeit
 
         # Prüft nach ob das Event in eine der verbotenen Bereiche überlappt udn kürzt oder löscht das Event
         if event.startzeit < TimeManager.aufstehzeit:
             EventManager.verschiebeZeitNach(event, True, TimeManager.aufstehzeit)
-        if event.endzeit > TimeManager.aufstehzeit:
+        if event.endzeit > TimeManager.schlafenszeit:
             EventManager.verschiebeZeitNach(event, False, TimeManager.schlafenszeit)
-        if event.beruehrt(EventManager.mittagspause):
+        if event.schneiden(EventManager.mittagspause):
             if zeit < TimeManager.null:
                 if event.endzeit <= TimeManager.mittagspauseEnde: EventManager.removeEvent(event)
                 EventManager.verschiebeZeitNach(event, True, TimeManager.mittagspauseEnde)
@@ -70,28 +108,33 @@ class EventManager:
                 if event.startzeit >= TimeManager.mittagspauseStart: EventManager.removeEvent(event)
                 EventManager.verschiebeZeitNach(event, False, TimeManager.mittagspauseStart)
 
-        # Prüft ob es Anhängende Events gib die leicht verschoben werden können
-        if zeit > TimeManager.null:
-            if event.eventDanach is not None:
-                EventManager.verschiebeEventUm(event.eventDanach, zeit)
-                return
-        elif zeit < TimeManager.null:
-            if event.eventDavor is not None:
-                EventManager.verschiebeEventUm(event.eventDavor, zeit)
-                return
 
-        # Prüft ob das Event mit anderen Events kollidiert und verschiebt diese entsprechend
-        otherEvents = list(filter(lambda x: x != event, EventManager.events))
+
+        # Prüft ob das Event mit anderen Events kollidiert und verschiebt diese entsprechend, danach werden auch noch
+        #Events davor und danach richtig gesetzt
+        otherEvents = EventManager.getEventsWithoutEvent(event)
         for oevent in otherEvents:
-            if event.beruehrt(oevent):
-                if ((oevent.startzeit >= event.startzeit and oevent.endzeit <= event.endzeit) or (
-                        oevent.startzeit <= event.startzeit <= oevent.endzeit)):  # das Event liegt im neuen Element oder anderes Event schneidet von oben hinein
+            if event.schneiden(oevent):
+                if (event.startzeit >= event.startzeit and oevent.endzeit <= event.endzeit):  # das Oevent liegt im Event
                     if zeit < TimeManager.null:
                         EventManager.verschiebeEventUm(oevent,
                                                        event.startzeit - oevent.endzeit)  # verschiebe Event nach vorne
                         event.eventDavor = oevent
                         oevent.eventDanach = event
-                    if zeit >= TimeManager.null:
+
+                    if zeit > TimeManager.null:
+                        EventManager.verschiebeEventUm(oevent,
+                                                       event.endzeit - oevent.startzeit)  # verschiebe Event nach hinten
+                        event.eventDanach = oevent
+                        oevent.eventDavor = event
+                    break
+                elif oevent.startzeit <= event.startzeit <= oevent.endzeit:
+                    if zeit < TimeManager.null:
+                        EventManager.verschiebeEventUm(oevent,
+                                                       event.startzeit - oevent.endzeit)  # verschiebe Event nach vorne
+                        event.eventDavor = oevent
+                        oevent.eventDanach = event
+                    if zeit > TimeManager.null:
                         EventManager.verschiebeEventUm(oevent,
                                                        event.endzeit - oevent.startzeit)  # verschiebe Event nach hinten
                         event.eventDanach = oevent
@@ -102,11 +145,18 @@ class EventManager:
                         EventManager.verschiebeEventUm(oevent, event.startzeit - oevent.endzeit)
                         event.eventDavor = oevent
                         oevent.eventDanach = event
-                    if zeit >= TimeManager.null:
+                    if zeit > TimeManager.null:
                         EventManager.verschiebeEventUm(oevent, event.endzeit - oevent.startzeit)
                         event.eventDanach = oevent
                         oevent.eventDavor = event
                     break
+            elif event.beruehrt(oevent):
+                if (oevent.startzeit < event.startzeit):
+                    oevent.eventDanach = event
+                    event.eventDavor = oevent
+                elif (oevent.endzeit > event.endzeit):
+                    oevent.eventDavor = event
+                    event.eventDanach = oevent
 
     # Verschiebt eine Zeit, nur falls startzeit vor endzeit liegt
     @staticmethod
@@ -121,7 +171,7 @@ class EventManager:
 
         # überschneidungen korrigieren, indem die Grenzen strikt neu verändern werden. Anhängende Teile werden nicht
         # verschoben sonder gekürzt
-        otherEvents = list(filter(lambda x: x != event, EventManager.events))
+        otherEvents = EventManager.getEventsWithoutEvent(event)
         for oevent in otherEvents:
             if event.schneiden(oevent):
                 if oevent.startzeit > event.startzeit and oevent.endzeit < event.endzeit:  # das Event liegt im neuen Element
@@ -149,30 +199,33 @@ class EventManager:
     @staticmethod
     def trenneEvent(event, zeit):
         deltaZeit = event.endzeit - zeit
+        deltaZeit.event = None #damit es bei der Addition zu keinen Problemen kommt, weil beide Zeiten mit Events verknüpft sind
         if deltaZeit < TimeManager.null or zeit < event.startzeit: return  # Zeit zum Aufeilen liegt nicht im Event
 
         EventManager.verschiebeZeitNach(event, False, zeit)
         event2 = Event(event.endzeit, event.endzeit + deltaZeit)
         EventManager.addEvent(event2)
 
+    #findet event falls die Zeit zwischen inklusive Anfangszeit und exklusive Endzeit des EVents liegt
     @staticmethod
     def findeEvent(zeit):
         for event in EventManager.events:
-            if event.startzeit <= zeit <= event.endzeit:
+            if event.startzeit <= zeit < event.endzeit:
                 return event
         return None
 
+    #finde Events exklusive der Grenzen
     @staticmethod
     def findeEvents(startzeit, endzeit):
         events = []
         for event in EventManager.events:
-            if event.endzeit >= startzeit and event.startzeit <= endzeit:
+            if event.endzeit > startzeit and event.startzeit < endzeit:
                 events.append(event)
         return events
 
     @staticmethod
     def hatEvent(event):
-        return len(list(filter(lambda x: x == event, EventManager.events))) == 1
+        return event in EventManager.events
 
     @staticmethod
     def addPause(zeit, dauer):

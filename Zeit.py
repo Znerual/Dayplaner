@@ -43,8 +43,8 @@ class Zeit(Objekt):
             return f"Zeit {self.stunde:02}:{self.minute:02} zu Event {self.event}"
 
     def __add__(self, other):
-        assert (not (self.event is not None and other.evet is not None))
-        assert (self.stunde + other.stunde + (self.minute + other.minute) / 60 <= 24)
+        assert (not (self.event is not None and other.event is not None) or self.event == other.event)
+        #assert (self.stunde + other.stunde + (self.minute + other.minute) / 60 <= 24) #achtung, Stunde kann damit > 24 sein!
         stunde = self.stunde + other.stunde
         minute = self.minute + other.minute
         if minute >= 60:
