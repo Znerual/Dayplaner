@@ -18,11 +18,12 @@ class TestZeit(unittest.TestCase):
         self.assertIsNone(zeit2, "Zeit richtig verworfen")
         self.assertEqual(str(zeit3), lsg3)
         self.assertIsNone(zeit4, "Zeit richtig verworfen")
+
     def test_circa(self):
-        zeit1 = Zeit(14,35)
-        zeit2 = Zeit(14,32)
-        zeit3 = Zeit(15,00)
-        Zeit.toleranz = (0,5)
+        zeit1 = Zeit(14, 35)
+        zeit2 = Zeit(14, 32)
+        zeit3 = Zeit(15, 00)
+        Zeit.toleranz = (0, 5)
         self.assertTrue(zeit1.circa(zeit2))
         self.assertTrue(zeit2.circa(zeit2))
         self.assertFalse(zeit1.circa(zeit3))
@@ -31,11 +32,11 @@ class TestZeit(unittest.TestCase):
     def test_addition(self):
         zeit1 = Zeit(14, 35)
         zeit2 = Zeit(2, 0)
-        zeit3 = Zeit(3,30)
-        zeit4 = Zeit(12,30)
+        zeit3 = Zeit(3, 30)
+        zeit4 = Zeit(12, 30)
         self.assertEqual(str(zeit1 + zeit2), "Zeit 16:35")
         self.assertEqual(str(zeit1 + zeit3), "Zeit 18:05")
-        #self.assertIsNone(str(zeit1 + zeit4))
+        # self.assertIsNone(str(zeit1 + zeit4))
 
     def test_subtraktion(self):
         zeit1 = Zeit(14, 35)
@@ -44,7 +45,8 @@ class TestZeit(unittest.TestCase):
         zeit4 = Zeit(12, 30)
         self.assertEqual(str(zeit1 - zeit2), "Zeit 12:35")
         self.assertEqual(str(zeit1 - zeit3), "Zeit 10:55")
-        #self.assertIsNone(str(zeit3 - zeit4))
+        # self.assertIsNone(str(zeit3 - zeit4))
+
     def test_groesser(self):
         zeit1 = Zeit(14, 35)
         zeit2 = Zeit(2, 0)
@@ -90,6 +92,19 @@ class TestZeit(unittest.TestCase):
         zeit2=Zeit.DecimalzuZeit(decimal2)
         self.assertEqual(zeit1,Zeit(14,15))
         self.assertEqual(zeit2,Zeit(19,45))
+        
+    def test_runde(self):
+        zeit1 = Zeit(14, 32)
+        zeit2 = Zeit(2, 3)
+
+        lsg1 = Zeit(14,30)
+        lsg2 = Zeit(2,5)
+        genauigkeit = Zeit(0,5)
+        zeit1.runde(genauigkeit)
+        zeit2.runde(genauigkeit)
+
+        self.assertEqual(str(zeit1), str(lsg1))
+        self.assertEqual(str(zeit2), str(lsg2))
 
 if __name__ == '__main__':
     unittest.main()

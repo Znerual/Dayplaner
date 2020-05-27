@@ -1,7 +1,5 @@
-from tkinter import *
 
-
-class Farbkonzept():
+class Farbkonzept:
     @staticmethod
     def vormittag():
         return '#ffdc73'
@@ -33,9 +31,11 @@ class Farbkonzept():
         element.configure(bg=color)
         return color
 
+
     @staticmethod
     def Linien_markiert(element):
         color = '#5d5d5d'
         element.configure(bg=color)
         return color
+
 
