@@ -8,14 +8,19 @@ class ScreenManager:
     canvasWidth = 0
     canvasHeight = 0
 
-    #ZeitZuPixel hat immer x = 0  und y als aktuelle Höhe
-    @staticmethod
-    def ZeitZuPixel(zeit):
-        pass
+
 
     @staticmethod
-    def PixelZuZeit(y):
-        pass
+    def ZeitZuPixel(zeit, aufstehZeit, schlafensZeit):
+        ratio=zeitspannePix/(schlafensZeit-aufstehZeit)
+        pixel=aufstehLiniePix + (zeit-aufstehZeit)*ratio
+        return pixel
+
+    @staticmethod
+    def PixelZuZeit(y, aufstehZeit, schlafensZeit):
+        ratio=zeitspannePix/(schlafensZeit-aufstehZeit)
+        zeit=(y-aufstehLiniePix)/ratio +aufstehZeit #achtung hier noch nachkommastellen in minuten umrechnen
+        return zeit
 
     def __init__(self):
         self.root = Tk()
@@ -29,3 +34,9 @@ class ScreenManager:
         ScreenManager.canvasWidth = self.canvas.winfo_width()
         ScreenManager.canvasHeight = self.canvas.winfo_height()
         self.root.mainloop()
+
+        zeitspannePix = ScreenManager.canvas.winfo_height() / 5 * 4
+        aufstehLiniePix = ScreenManager.canvas.winfo_height() / 10  # 1/10 oben 1/10 unten platz
+        schlafensLiniePix = aufstehLiniePix + zeitspannePix
+
+
