@@ -205,7 +205,7 @@ class EventManager:
         EventManager.verschiebeZeitNach(event, False, zeit)
         event2 = Event(event.endzeit, event.endzeit + deltaZeit)
         EventManager.addEvent(event2)
-
+        return (event, event2)
     #findet event falls die Zeit zwischen inklusive Anfangszeit und exklusive Endzeit des EVents liegt
     @staticmethod
     def findeEvent(zeit):
@@ -234,6 +234,8 @@ class EventManager:
         if len(events) == 0:
             EventManager.addEvent(pause)
         elif len(events) == 1:  # verschiebe das Event so, dass die Pause anliegt
+            if (events[0].startzeit != zeit):
+                events[0] = EventManager.trenneEvent(events[0], zeit)[1]
             EventManager.verschiebeEventUm(events[0], zeit + dauer - events[0].startzeit)
             EventManager.addEvent(pause)
         else:  # verschiebe alle Events so das die Pause zwar nicht anliegen muss, aber sicher genug Platz ist

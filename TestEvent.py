@@ -242,5 +242,78 @@ class TestEvent(unittest.TestCase):
 
         self.assertEqual(str(EM.findeEvent(Zeit(20, 0))), str(lsg5)) # event2 verschoben
         self.assertEqual(event2, lsg5)
+
+    def test_verschiebeZeitNach(self):
+        EM.events = []
+        TM.schlafenszeit = Zeit(23, 0)
+        EM.mittagspause = Event(Zeit(0, 0), Zeit(0, 0))
+        event1 = Event(Zeit(11, 30), Zeit(15, 00))
+        event2 = Event(Zeit(16, 30), Zeit(22, 00))
+
+        lsg1 = Event(Zeit(11, 30), Zeit(16, 30))
+        lsg2 = Event(Zeit(11, 30), Zeit(17, 00))
+        lsg3 = Event(Zeit(17, 00), Zeit(22, 00))
+
+        EM.addEvent(event1)
+        EM.addEvent(event2)
+
+        EM.verschiebeZeitNach(event1, False, Zeit(16,30))
+        self.assertEqual(str(event1.eventDanach), str(event2))
+        self.assertEqual(str(event2.eventDavor), str(event1))
+        self.assertEqual(str(event1), str(lsg1))
+
+        EM.verschiebeZeitNach(event1, False, Zeit(17,0))
+        self.assertEqual(str(event1.eventDanach), str(event2))
+        self.assertEqual(str(event2.eventDavor), str(event1))
+        self.assertEqual(str(event1), str(lsg2))
+        self.assertEqual(str(event2), str(lsg3))
+
+    def test_addPause(self):
+        EM.events = []
+        TM.schlafenszeit = Zeit(23, 0)
+        EM.mittagspause = Event(Zeit(0, 0), Zeit(0, 0))
+
+
+        event1 = Event(Zeit(11, 30), Zeit(15, 00))
+        event2 = Event(Zeit(16, 30), Zeit(22, 00))
+
+        EM.addEvent(event1)
+        EM.addEvent(event2)
+
+        lsg1 = Event(Zeit(11, 30), Zeit(13, 00))
+        pause = Event(Zeit(13, 0), Zeit(13, 15))
+        lsg2 = Event(Zeit(13, 15), Zeit(15, 15))
+        lsg3 = Event(Zeit(16, 30), Zeit(22, 00))
+        EM.addPause(Zeit(13,00), Zeit(0,15))
+
+        self.assertEqual(str(event1), str(lsg1))
+        self.assertEqual(str(EM.findeEvent(Zeit(13,5))), str(pause))
+        self.assertTrue(EM.findeEvent(Zeit(13,5)).istPause)
+        self.assertEqual(str(EM.findeEvent(Zeit(13,20))), str(lsg2))
+        self.assertEqual(str(event2), str(lsg3))
+
+    def test_addPause2(self):
+        EM.events = []
+        TM.schlafenszeit = Zeit(23, 0)
+        EM.mittagspause = Event(Zeit(0, 0), Zeit(0, 0))
+
+
+        event1 = Event(Zeit(11, 30), Zeit(15, 00))
+        event2 = Event(Zeit(16, 30), Zeit(22, 00))
+
+        EM.addEvent(event1)
+        EM.addEvent(event2)
+
+        lsg1 = Event(Zeit(11, 30), Zeit(13, 00))
+        pause = Event(Zeit(13, 0), Zeit(15, 0))
+        lsg2 = Event(Zeit(15, 0), Zeit(17, 00))
+        lsg3 = Event(Zeit(17, 00), Zeit(22, 30))
+        EM.addPause(Zeit(13,00), Zeit(2,0))
+
+        self.assertEqual(str(event1), str(lsg1))
+        self.assertEqual(str(EM.findeEvent(Zeit(13,5))), str(pause))
+        self.assertTrue(EM.findeEvent(Zeit(13,5)).istPause)
+        self.assertEqual(str(EM.findeEvent(Zeit(15,20))), str(lsg2))
+        self.assertEqual(str(event2), str(lsg3))
 if __name__ == '__main__':
     unittest.main()
