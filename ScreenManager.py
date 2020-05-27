@@ -66,6 +66,7 @@ class ScreenManager:
         from Event import Event
 
         if ScreenManager.selected is not None:  # auswahl für altes Element aufheben
+            ScreenManager.selected.zeichne() #damit es neu, ohne Markierung gezeichnet wird
             ScreenManager.selected.unfokusiere()
 
         pixel = (clickEvent.x_root, clickEvent.y_root) # oder event.x für absolute SCeen position
@@ -85,7 +86,7 @@ class ScreenManager:
                 ScreenManager.selected = event
 
         ScreenManager.selected.fokusiere()
-
+        ScreenManager.selected.zeichneMarkiert()
     @staticmethod
     def callbackRightClick(clickEvent):
         from EventManager import EventManager
@@ -93,6 +94,7 @@ class ScreenManager:
         from Event import Event
 
         if ScreenManager.selected is not None:  # auswahl für altes Element aufheben
+            ScreenManager.selected.zeichne()
             ScreenManager.selected.unfokusiere()
 
         pixel = (clickEvent.x_root, clickEvent.y_root)  # oder event.x für absolute SCeen position
@@ -102,6 +104,7 @@ class ScreenManager:
         event = EventManager.findeEvent(zeit)
         if event is not None:
             pause = EventManager.addPause(zeit, EventManager.pausenLaenge)
+            pause.zeichne()
             ScreenManager.selected = pause.endzeit
             ScreenManager.selected.fokusiere()
-
+            ScreenManager.selected.zeichneMarkiert()

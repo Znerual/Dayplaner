@@ -49,20 +49,21 @@ class Event(Objekt):
                 self.text += event.char
 
     def zeichne(self):
-        #from ScreenManager impor
-        # self.form.append("dfasfdsfj") #wird mit allen benötigten Formen gefüllt, dh mit dem Grundrechteckt,dass gefüllt wird, Rahmen und Text
-        # self.form[0]
-        # if len(self.form) == 0:
-        #    ...
-        # ScreenManager.canvas #canvas zum zeichnen
-        # google nach canvas.move oder moveto ...
+        from ScreenManager import ScreenManager as SM
+        from Farbkonzept import Farbkonzept
 
-        # from ScreenManager import ScreenManager
-        # sm = ScreenManager() erzeugt Canvas zum Testen, befüllt ScreenManager
-        pass
+        y1 = SM.zeitZuPixel(self.startzeit)
+        y2 = SM.zeitZuPixel(self.endzeit)
+
+        if self.form is None:
+            self.form[0] = SM.canvas.create_rectangle(0, y1, SM.canvasWidth, y2 ,fill=Farbkonzept.vormittag())
+        else:
+            SM.canvas.coords(self.form[0], 0, y1, SM.canvasWidth, y2)
+            SM.canvas.itemconfig(self.form[0], fill=Farbkonzept.vormittag())
+
 
     def zeichneMarkiert(self):
-        pass
+        self.zeichne()
 
     def entferne(self):
         from EventManager import EventManager
