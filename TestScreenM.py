@@ -5,9 +5,9 @@ from Zeit import Zeit
 from ScreenManager import ScreenManager as SM
 from TimeManager import TimeManager as TM
 
-class MyTestCase(unittest.TestCase):
+class TestScreenManager(unittest.TestCase):
     def Test_Farben(self):
-        sm = SM()
+        SM.init()
         #root = Tk()
         #canvas = Canvas(root, width=250, height=400)
         #canvas.pack() #beim rectangle(x1,y1,x2,y2) koo der linken oberen und rechten unteren ecke
@@ -18,11 +18,12 @@ class MyTestCase(unittest.TestCase):
         recmim= SM.canvas.create_rectangle(50, 200, 200, 250 ,fill=Farbkonzept.mittagspause_markiert())
         recnm = SM.canvas.create_rectangle(50, 250, 200, 300, fill=Farbkonzept.nachmittag())
         recnmm= SM.canvas.create_rectangle(50, 300, 200, 350, fill=Farbkonzept.nachmittag_markiert())
-        sm.run()
+        SM.run()
         #kann rectangle nicht als objekt übergeben, hat nicht property configure
 
         #root.mainloop()
         #self.assertEqual(test, '#012040')
+
 
     def Test_pixelZeit(self):
         z = Zeit(12,0)

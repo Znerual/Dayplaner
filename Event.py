@@ -49,7 +49,8 @@ class Event(Objekt):
                 self.text += event.char
 
     def zeichne(self):
-        # self.form.append("j") #wird mit allen benötigten Formen gefüllt, dh mit dem Grundrechteckt,dass gefüllt wird, Rahmen und Text
+        #from ScreenManager impor
+        # self.form.append("dfasfdsfj") #wird mit allen benötigten Formen gefüllt, dh mit dem Grundrechteckt,dass gefüllt wird, Rahmen und Text
         # self.form[0]
         # if len(self.form) == 0:
         #    ...

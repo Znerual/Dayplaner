@@ -2,6 +2,7 @@ from tkinter import *
 
 
 class ScreenManager:
+    root = None
     canvas = None
 
     screenWidth = 0
@@ -39,28 +40,27 @@ class ScreenManager:
         zeit.vonMinuten(zeitInMinuten)
         return zeit
   
-
-    def __init__(self):
-        self.root = Tk()
-        ScreenManager.screenWidth = int(self.root.winfo_screenwidth() / 3)
-        ScreenManager.screenHeight = self.root.winfo_screenheight()
-        self.root.geometry(f"{ScreenManager.screenWidth}x{ScreenManager.screenHeight}")
-        ScreenManager.canvas = Canvas(self.root, bg="white", width=ScreenManager.screenWidth,
+    @staticmethod
+    def init():
+        ScreenManager.root = Tk()
+        ScreenManager.screenWidth = int(ScreenManager.root.winfo_screenwidth() / 3)
+        ScreenManager.screenHeight = ScreenManager.root.winfo_screenheight()
+        ScreenManager.root.geometry(f"{ScreenManager.screenWidth}x{ScreenManager.screenHeight}")
+        ScreenManager.canvas = Canvas(ScreenManager.root, bg="white", width=ScreenManager.screenWidth,
                                       height=ScreenManager.screenHeight)  ##ndere white zu colormanager
-        self.canvas.pack()
-        self.canvas.bind("<Button-1>", self.callbackLeftClick)
-        self.canvas.bind("<Button-3>", self.callbackRightClick)
-        self.root.update()
-        ScreenManager.canvasWidth = self.canvas.winfo_width()
-        ScreenManager.canvasHeight = self.canvas.winfo_height()
-        #self.root.mainloop() stattdessen beim testn "run" verwenden
+        ScreenManager.canvas.pack()
+        ScreenManager.canvas.bind("<Button-1>", ScreenManager.callbackLeftClick)
+        ScreenManager.canvas.bind("<Button-3>", ScreenManager.callbackRightClick)
+        ScreenManager.root.update()
+        ScreenManager.canvasWidth = ScreenManager.canvas.winfo_width()
+        ScreenManager.canvasHeight = ScreenManager.canvas.winfo_height()
 
+    @staticmethod
+    def run():
+        ScreenManager.root.mainloop()
 
-
-    def run(self):
-        self.root.mainloop()
-
-    def callbackLeftClick(self, clickEvent):
+    @staticmethod
+    def callbackLeftClick(clickEvent):
         from EventManager import EventManager
         from TimeManager import TimeManager
         from Event import Event
@@ -86,7 +86,8 @@ class ScreenManager:
 
         ScreenManager.selected.fokusiere()
 
-    def callbackRightClick(self, clickEvent):
+    @staticmethod
+    def callbackRightClick(clickEvent):
         from EventManager import EventManager
         from TimeManager import TimeManager
         from Event import Event
