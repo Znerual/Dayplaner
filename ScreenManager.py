@@ -11,15 +11,27 @@ class ScreenManager:
 
 
     @staticmethod
-    def ZeitZuPixel(zeit, aufstehZeit, schlafensZeit):
-        ratio=zeitspannePix/(schlafensZeit-aufstehZeit)
-        pixel=aufstehLiniePix + (zeit-aufstehZeit)*ratio
-        return pixel
+    def ZeitZuPixel(zeit):
+        from TimeManager import TimeManager
+        from Zeit import Zeit
+        zeitspannePix = ScreenManager.canvasHeight / 5 * 4
+        aufstehLiniePix = ScreenManager.canvasHeight / 10  # 1/10 oben 1/10 unten platz
+        deci1=Zeit.ZeitzuDecimal(TimeManager.schlafenszeit)-Zeit.ZeitzuDecimal(TimeManager.aufstehzeit)
+        ratio=zeitspannePix/deci1
+        deci2=Zeit.ZeitzuDecimal(zeit)-Zeit.ZeitzuDecimal(TimeManager.aufstehzeit)
+        ypixel=aufstehLiniePix + deci2*ratio
+        return ypixel
 
     @staticmethod
-    def PixelZuZeit(y, aufstehZeit, schlafensZeit):
-        ratio=zeitspannePix/(schlafensZeit-aufstehZeit)
-        zeit=(y-aufstehLiniePix)/ratio +aufstehZeit #achtung hier noch nachkommastellen in minuten umrechnen
+    def PixelZuZeit(y):
+        from TimeManager import TimeManager
+        from Zeit import Zeit
+        zeitspannePix = ScreenManager.canvasHeight / 5 * 4
+        aufstehLiniePix = ScreenManager.canvasHeight / 10
+        deci1 = Zeit.ZeitzuDecimal(TimeManager.schlafenszeit) - Zeit.ZeitzuDecimal(TimeManager.aufstehzeit)
+        ratio = zeitspannePix / deci1
+        tmp=(y-aufstehLiniePix)/ratio +Zeit.ZeitzuDecimal(TimeManager.aufstehzeit)
+        zeit=Zeit.DecimalzuZeit(tmp)
         return zeit
 
     def __init__(self):
@@ -33,10 +45,6 @@ class ScreenManager:
         self.root.update()
         ScreenManager.canvasWidth = self.canvas.winfo_width()
         ScreenManager.canvasHeight = self.canvas.winfo_height()
-        self.root.mainloop()
-
-        zeitspannePix = ScreenManager.canvas.winfo_height() / 5 * 4
-        aufstehLiniePix = ScreenManager.canvas.winfo_height() / 10  # 1/10 oben 1/10 unten platz
-        schlafensLiniePix = aufstehLiniePix + zeitspannePix
+        #self.root.mainloop() stattdessen beim testn "run" verwenden
 
 
