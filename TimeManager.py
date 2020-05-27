@@ -7,3 +7,4 @@ class TimeManager:
     mittagspauseEnde = Zeit(13, 30)
     schlafenszeit = Zeit(23, 00)
     null = Zeit(0, 0)
+    genauigkeit = Zeit(0,5)

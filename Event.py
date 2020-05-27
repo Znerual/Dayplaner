@@ -37,15 +37,13 @@ class Event(Objekt):
             return True
         return False
 
-    def callback_text(self, event):
+    def callbackText(self, event):
         if event.keysym == "Return":
             self.unfokusiere()
         elif event.keysym == "BackSpace" and not self.istPause:
             self.text = self.text[:-1]
         elif event.keysym == "Delete":
-            self.unfokusiere()
-            from EventManager import EventManager
-            EventManager.removeEvent(self)
+            self.entferne()
         else:
             if not self.istPause:
                 self.text += event.char
@@ -66,11 +64,20 @@ class Event(Objekt):
         pass
 
     def entferne(self):
-        pass
-
+        from EventManager import EventManager
+        from ScreenManager import ScreenManager
+        self.unfokusiere()
+        #rufe entferne für die Zeiten auf, damit diese vom Canvas gelöscht werden können
+        self.startzeit.entferne()
+        self.endzeit.entferne()
+        #entferne das events aus events[]
+        EventManager.removeEvent(self)
+        #lösche das Event vom Canvas
+        for form in self.form:
+            ScreenManager.canvas.delete(form)
     def fokusiere(self):
         from ScreenManager import ScreenManager
-        ScreenManager.canvas.tag_bind(self.form[0], "<Key>", self.callback_text)
+        ScreenManager.canvas.tag_bind(self.form[0], "<Key>", self.callbackText)
 
     def unfokusiere(self):
         from ScreenManager import ScreenManager

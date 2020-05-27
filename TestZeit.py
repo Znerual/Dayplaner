@@ -77,6 +77,18 @@ class TestZeit(unittest.TestCase):
         self.assertFalse(zeit3 < zeit2)
         self.assertFalse(zeit2 < zeit2)
 
+    def test_runde(self):
+        zeit1 = Zeit(14, 32)
+        zeit2 = Zeit(2, 3)
+
+        lsg1 = Zeit(14,30)
+        lsg2 = Zeit(2,5)
+        genauigkeit = Zeit(0,5)
+        zeit1.runde(genauigkeit)
+        zeit2.runde(genauigkeit)
+
+        self.assertEqual(str(zeit1), str(lsg1))
+        self.assertEqual(str(zeit2), str(lsg2))
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,11 +1,12 @@
 from TimeManager import TimeManager
 from Event import Event
-
+from Zeit import Zeit
 
 class EventManager:
     events = []
     mittagspause = Event(TimeManager.mittagspauseStart, TimeManager.mittagspauseEnde)
-
+    eventLaenge = Zeit(1,30)
+    pausenLaenge = Zeit(0,10)
     #Es hat passieren können das beim Verschieben zwei Elemente exakt übereinder ilegen und damit beide
     # nicht in die oevents List hinzugefügt werden
     @staticmethod
@@ -36,13 +37,13 @@ class EventManager:
                 if event.startzeit < oevent.startzeit < event.endzeit:  # Event liegt oberhalb von OEvent
                     event.endzeit.set(oevent.startzeit)
                     EventManager.addEvent(event)
-                    return
+                    return event
                 elif oevent.startzeit == event.startzeit and oevent.endzeit == event.endzeit:  # beide elemente decken sich komplett
-                    return
+                    return event
                 elif event.startzeit < oevent.endzeit < event.endzeit:  # Event liegt unterhalb von oevent
                     event.startzeit.set(oevent.endzeit)
                     EventManager.addEvent(event)
-                    return
+                    return event
                 else:  # das Element überlappt nicht aber berüht vl andere Events, rufe verschiebeZeitNach auf um Andocken rictig zu machen
                     EventManager.verschiebeZeitNach(event, True, event.startzeit)
                     EventManager.verschiebeZeitNach(event, False, event.endzeit)
@@ -54,7 +55,7 @@ class EventManager:
                 EventManager.verschiebeZeitNach(event, True, event.startzeit)
                 EventManager.verschiebeZeitNach(event, False, event.endzeit)
             EventManager.events.append(event)
-
+            return event
     @staticmethod
     def removeEvent(event):
         # lösche die Verknüpfungen über Vorheriges Element und folgendes Element
@@ -242,3 +243,4 @@ class EventManager:
             for event in events:
                 EventManager.verschiebeEventUm(event, dauer)
             EventManager.addEvent(pause)
+        return pause

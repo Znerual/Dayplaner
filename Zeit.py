@@ -109,13 +109,22 @@ class Zeit(Objekt):
             return True
         return False
 
+    def runde(self, genauigkeit):
+        mod = self.inMinuten() % genauigkeit.inMinuten()
+        if mod == 0:
+            return self
+        elif mod < genauigkeit.inMinuten() / 2:
+            return self.fromMinuten(self.inMinuten() - mod)
+        else:
+            return self.fromMinuten(self.inMinuten() +  (genauigkeit.inMinuten() -mod))
+
     def istStartzeit(self):
         if self.circa(self.event.startzeit): return True
 
     def istEndzeit(self):
         if self.circa(self.event.endzeit): return True
 
-    def callback_verschiebe(self, event):
+    def callbackVerschiebe(self, event):
         from EventManager import EventManager
         if event.keysym == "Return":
             self.unfokusiere()
@@ -137,6 +146,14 @@ class Zeit(Objekt):
         else:
             self.text += event.char
 
+    def inMinuten(self):
+        return self.stunde * 60 + self.minute
+
+    def fromMinuten(self, minuten):
+        self.stunde = int(minuten / 60)
+        self.minute = int(minuten % 60)
+        self.text = f"{self.stunde:02}:{self.minute:02}"
+
     def zeichne(self):
         pass
 
@@ -144,11 +161,16 @@ class Zeit(Objekt):
         pass
 
     def entferne(self):
-        pass
+        from ScreenManager import ScreenManager
+        #löse den eventuellen Fokus
+        self.unfokusiere()
+        #lösche die Zeitelemente vom Canvas
+        for form in self.form:
+            ScreenManager.canvas.delete(form)
 
     def fokusiere(self):
         from ScreenManager import ScreenManager
-        ScreenManager.canvas.tag_bind(str(self), "<Key>", self.callback_verschiebe)
+        ScreenManager.canvas.tag_bind(str(self), "<Key>", self.callbackVerschiebe)
 
     def unfokusiere(self):
         from ScreenManager import ScreenManager
