@@ -77,21 +77,6 @@ class TestZeit(unittest.TestCase):
         self.assertFalse(zeit3 < zeit2)
         self.assertFalse(zeit2 < zeit2)
 
-    def test_ZeitzuDecimal(self):
-        zeit1 = Zeit(20, 15)
-        zeit2 = Zeit(12, 30)
-        decimal1=Zeit.ZeitzuDecimal(zeit1)
-        decimal2=Zeit.ZeitzuDecimal(zeit2)
-        self.assertEqual(decimal1,20.25)
-        self.assertEqual(decimal2,12.5)
-
-    def test_DecimalzuZeit(self):
-        decimal1=14.25
-        decimal2=19.75
-        zeit1=Zeit.DecimalzuZeit(decimal1)
-        zeit2=Zeit.DecimalzuZeit(decimal2)
-        self.assertEqual(zeit1,Zeit(14,15))
-        self.assertEqual(zeit2,Zeit(19,45))
         
     def test_runde(self):
         zeit1 = Zeit(14, 32)

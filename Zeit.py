@@ -29,17 +29,6 @@ class Zeit(Objekt):
             except ValueError:
                 return None
 
-    def ZeitzuDecimal(self):
-        nachkomma = self.minute/60
-        deci = self.stunde + nachkomma
-        return deci
-
-    def DecimalzuZeit(x):
-        (h,m)=x.split('.')#klappt noch nicht weil x decimalzahl und nicht string ist
-        m=m*0.6
-        zeit=Zeit(h,m)
-        return zeit
-
     def __init__(self, stunde, minute, event=None):
         self.stunde = stunde
         self.minute = minute
@@ -125,9 +114,9 @@ class Zeit(Objekt):
         if mod == 0:
             return self
         elif mod < genauigkeit.inMinuten() / 2:
-            return self.fromMinuten(self.inMinuten() - mod)
+            return self.vonMinuten(self.inMinuten() - mod)
         else:
-            return self.fromMinuten(self.inMinuten() +  (genauigkeit.inMinuten() -mod))
+            return self.vonMinuten(self.inMinuten() + (genauigkeit.inMinuten() - mod))
 
     def istStartzeit(self):
         if self.circa(self.event.startzeit): return True
@@ -160,7 +149,7 @@ class Zeit(Objekt):
     def inMinuten(self):
         return self.stunde * 60 + self.minute
 
-    def fromMinuten(self, minuten):
+    def vonMinuten(self, minuten):
         self.stunde = int(minuten / 60)
         self.minute = int(minuten % 60)
         self.text = f"{self.stunde:02}:{self.minute:02}"

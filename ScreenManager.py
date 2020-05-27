@@ -14,37 +14,39 @@ class ScreenManager:
 
 
     @staticmethod
-    def ZeitZuPixel(zeit):
+    def zeitZuPixel(zeit):
         from TimeManager import TimeManager
         from Zeit import Zeit
         zeitspannePix = ScreenManager.canvasHeight / 5 * 4
         aufstehLiniePix = ScreenManager.canvasHeight / 10  # 1/10 oben 1/10 unten platz
-        deci1=Zeit.ZeitzuDecimal(TimeManager.schlafenszeit-TimeManager.aufstehzeit)
-        ratio=zeitspannePix/deci1
-        deci2=Zeit.ZeitzuDecimal(zeit-TimeManager.aufstehzeit)
-        ypixel=aufstehLiniePix + deci2*ratio
+
+        ratio=zeitspannePix / (TimeManager.schlafenszeit-TimeManager.aufstehzeit).inMinuten() #Pixel/Minute
+        zeitNachAufstehenInMinuten = (zeit-TimeManager.aufstehzeit).inMinuten() #Zeit relativ zur Aufstehzeit
+        ypixel=aufstehLiniePix + zeitNachAufstehenInMinuten * ratio
         return ypixel
 
     @staticmethod
-    def PixelZuZeit(y):
+    def pixelZuZeit(y):
         from TimeManager import TimeManager
         from Zeit import Zeit
-        zeitspannePix = ScreenManager.canvasHeight / 5 * 4
+        zeit = Zeit(0, 0)
+
+        zeitspannePix = ScreenManager.canvasHeight / 5 * 4 #nutzbarer Bereich
         aufstehLiniePix = ScreenManager.canvasHeight / 10
-        deci1 = Zeit.ZeitzuDecimal(TimeManager.schlafenszeit-TimeManager.aufstehzeit)
-        ratio = zeitspannePix / deci1
-        tmp=(y-aufstehLiniePix)/ratio +Zeit.ZeitzuDecimal(TimeManager.aufstehzeit)
-        zeit=Zeit.DecimalzuZeit(tmp)
+        #rechne in Minuten
+        ratio = zeitspannePix / (TimeManager.schlafenszeit - TimeManager.aufstehzeit).inMinuten()
+        zeitInMinuten = (y-aufstehLiniePix)/ratio + TimeManager.aufstehzeit.inMinuten()
+        zeit.vonMinuten(zeitInMinuten)
         return zeit
   
 
     def __init__(self):
         self.root = Tk()
-        ScreenManager.screenWidth = self.root.winfo_screenwidth()
+        ScreenManager.screenWidth = int(self.root.winfo_screenwidth() / 3)
         ScreenManager.screenHeight = self.root.winfo_screenheight()
-        self.root.geometry(f"{ScreenManager.screenWidth / 3}x{ScreenManager.screenHeight}")
-        ScreenManager.canvas = Canvas(self.root, bg="green", width=self.root.winfo_width(),
-                                      height=self.root.winfo_height())  ##ndere white zu colormanager
+        self.root.geometry(f"{ScreenManager.screenWidth}x{ScreenManager.screenHeight}")
+        ScreenManager.canvas = Canvas(self.root, bg="white", width=ScreenManager.screenWidth,
+                                      height=ScreenManager.screenHeight)  ##ndere white zu colormanager
         self.canvas.pack()
         self.canvas.bind("<Button-1>", self.callbackLeftClick)
         self.canvas.bind("<Button-3>", self.callbackRightClick)
@@ -100,4 +102,5 @@ class ScreenManager:
         if event is not None:
             pause = EventManager.addPause(zeit, EventManager.pausenLaenge)
             ScreenManager.selected = pause.endzeit
-            ScreenManager.selected.fokusiere()r
+            ScreenManager.selected.fokusiere()
+

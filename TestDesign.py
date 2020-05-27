@@ -1,33 +1,54 @@
 import unittest
 from Farbkonzept import Farbkonzept
 from tkinter import *
-
+from Zeit import Zeit
+from ScreenManager import ScreenManager as SM
+from TimeManager import TimeManager as TM
 
 class MyTestCase(unittest.TestCase):
-    def test_Farben(self):
-        root = Tk()
-        canvas = Canvas(root, width=250, height=400)
-        canvas.pack() #beim rectangle(x1,y1,x2,y2) koo der linken oberen und rechten unteren ecke
-        recvm = canvas.create_rectangle(50, 50, 200, 100 ,fill=Farbkonzept.vormittag())
-        recvmm= canvas.create_rectangle(50, 100, 200, 150 ,fill=Farbkonzept.vormittag_markiert())
-        recmi = canvas.create_rectangle(50,150, 200, 200, fill=Farbkonzept.mittagspause())
-        recmim= canvas.create_rectangle(50, 200, 200, 250 ,fill=Farbkonzept.mittagspause_markiert())
-        recnm = canvas.create_rectangle(50, 250, 200, 300, fill=Farbkonzept.nachmittag())
-        recnmm= canvas.create_rectangle(50, 300, 200, 350, fill=Farbkonzept.nachmittag_markiert())
+    def Test_Farben(self):
+        sm = SM()
+        #root = Tk()
+        #canvas = Canvas(root, width=250, height=400)
+        #canvas.pack() #beim rectangle(x1,y1,x2,y2) koo der linken oberen und rechten unteren ecke
 
+        recvm = SM.canvas.create_rectangle(50, 50, 200, 100 ,fill=Farbkonzept.vormittag())
+        recvmm= SM.canvas.create_rectangle(50, 100, 200, 150 ,fill=Farbkonzept.vormittag_markiert())
+        recmi = SM.canvas.create_rectangle(50,150, 200, 200, fill=Farbkonzept.mittagspause())
+        recmim= SM.canvas.create_rectangle(50, 200, 200, 250 ,fill=Farbkonzept.mittagspause_markiert())
+        recnm = SM.canvas.create_rectangle(50, 250, 200, 300, fill=Farbkonzept.nachmittag())
+        recnmm= SM.canvas.create_rectangle(50, 300, 200, 350, fill=Farbkonzept.nachmittag_markiert())
+        sm.run()
         #kann rectangle nicht als objekt übergeben, hat nicht property configure
-        root.mainloop()
+
+        #root.mainloop()
         #self.assertEqual(test, '#012040')
 
-    #def test_PixelZeit(self):
-     #   from ScreenManager import ScreenManager
-      #  z="12:00"
-       # #zeit1=ScreenManager.PixelZuZeit(500)
-        ##y1=ScreenManager.ZeitZuPixel(zeit1)
-        #y2=ScreenManager.ZeitZuPixel(z)
-        ##zeit2=ScreenManager.PixelZuZeit(y2)
-        #self.assertEqual(y2,400)#wär eh false gewesen, wollte aber schaun (ob) was für y2 rauskommt
-        ##self.assertEqual(500,y1)
-        ##self.assertEqual(z,zeit2)
+    def Test_pixelZeit(self):
+        z = Zeit(12,0)
+        zeit1 = SM.pixelZuZeit(500)
+        y1=SM.zeitZuPixel(zeit1)
+        y2=SM.zeitZuPixel(z)
+        zeit2=SM.pixelZuZeit(y2)
+
+        self.assertEqual(500,y1)
+        self.assertEqual(z,zeit2)
+
+    def test_pixelZuZeit(self):
+        SM.canvasHeight = 500
+        TM.aufstehzeit = Zeit(10,0)
+        TM.schlafenszeit = Zeit(18,0)
+
+        y1 = 50 #erster Valider Wert
+        y2 = 100
+
+        lsg1 = TM.aufstehzeit
+        lsg2 = Zeit(11,0)
+
+        zeit1 = SM.pixelZuZeit(y1)
+        zeit2 = SM.pixelZuZeit(y2)
+
+        self.assertEqual(str(zeit1), str(lsg1))
+        self.assertEqual(str(zeit2), str(lsg2))
 if __name__ == '__main__':
     unittest.main()
