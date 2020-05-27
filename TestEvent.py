@@ -204,8 +204,7 @@ class TestEvent(unittest.TestCase):
         lsg2 = Event(Zeit(15, 0), Zeit(17, 00))
         EM.verschiebeEventUm(event1, Zeit(3,0))
 
-        for e in EM.events:
-            print(f"{e}")
+        
         self.assertEqual(str(event1), str(lsg1))
         self.assertEqual(str(event2), str(lsg2))
     def test_verschiebeEventUm(self):
