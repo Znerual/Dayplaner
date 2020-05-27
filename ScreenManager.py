@@ -16,9 +16,9 @@ class ScreenManager:
         from Zeit import Zeit
         zeitspannePix = ScreenManager.canvasHeight / 5 * 4
         aufstehLiniePix = ScreenManager.canvasHeight / 10  # 1/10 oben 1/10 unten platz
-        deci1=Zeit.ZeitzuDecimal(TimeManager.schlafenszeit)-Zeit.ZeitzuDecimal(TimeManager.aufstehzeit)
+        deci1=Zeit.ZeitzuDecimal(TimeManager.schlafenszeit-TimeManager.aufstehzeit)
         ratio=zeitspannePix/deci1
-        deci2=Zeit.ZeitzuDecimal(zeit)-Zeit.ZeitzuDecimal(TimeManager.aufstehzeit)
+        deci2=Zeit.ZeitzuDecimal(zeit-TimeManager.aufstehzeit)
         ypixel=aufstehLiniePix + deci2*ratio
         return ypixel
 
@@ -28,7 +28,7 @@ class ScreenManager:
         from Zeit import Zeit
         zeitspannePix = ScreenManager.canvasHeight / 5 * 4
         aufstehLiniePix = ScreenManager.canvasHeight / 10
-        deci1 = Zeit.ZeitzuDecimal(TimeManager.schlafenszeit) - Zeit.ZeitzuDecimal(TimeManager.aufstehzeit)
+        deci1 = Zeit.ZeitzuDecimal(TimeManager.schlafenszeit-TimeManager.aufstehzeit)
         ratio = zeitspannePix / deci1
         tmp=(y-aufstehLiniePix)/ratio +Zeit.ZeitzuDecimal(TimeManager.aufstehzeit)
         zeit=Zeit.DecimalzuZeit(tmp)
