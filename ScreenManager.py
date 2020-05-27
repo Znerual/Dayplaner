@@ -51,9 +51,11 @@ class ScreenManager:
         ScreenManager.canvas.pack()
         ScreenManager.canvas.bind("<Button-1>", ScreenManager.callbackLeftClick)
         ScreenManager.canvas.bind("<Button-3>", ScreenManager.callbackRightClick)
+        ScreenManager.canvas.focus_set()
         ScreenManager.root.update()
         ScreenManager.canvasWidth = ScreenManager.canvas.winfo_width()
         ScreenManager.canvasHeight = ScreenManager.canvas.winfo_height()
+
 
     @staticmethod
     def run():
@@ -85,8 +87,9 @@ class ScreenManager:
             else:
                 ScreenManager.selected = event
 
-        ScreenManager.selected.fokusiere()
         ScreenManager.selected.zeichneMarkiert()
+        ScreenManager.selected.fokusiere()
+
     @staticmethod
     def callbackRightClick(clickEvent):
         from EventManager import EventManager
@@ -106,5 +109,5 @@ class ScreenManager:
             pause = EventManager.addPause(zeit, EventManager.pausenLaenge)
             pause.zeichne()
             ScreenManager.selected = pause.endzeit
-            ScreenManager.selected.fokusiere()
             ScreenManager.selected.zeichneMarkiert()
+            ScreenManager.selected.fokusiere()

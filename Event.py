@@ -10,7 +10,7 @@ class Event(Objekt):
         self.startzeit.setEvent(self)
         self.endzeit.setEvent(self)
 
-        self.text = ""
+        self.text = "Test"
         self.eventDavor = None
         self.eventDanach = None
         self.form = []
@@ -38,28 +38,39 @@ class Event(Objekt):
         return False
 
     def callbackText(self, event):
+
         if event.keysym == "Return":
+            self.zeichne()
             self.unfokusiere()
         elif event.keysym == "BackSpace" and not self.istPause:
             self.text = self.text[:-1]
+            self.zeichneMarkiert()
         elif event.keysym == "Delete":
             self.entferne()
         else:
             if not self.istPause:
                 self.text += event.char
+                self.zeichneMarkiert()
+
 
     def zeichne(self):
         from ScreenManager import ScreenManager as SM
         from Farbkonzept import Farbkonzept
 
+        x1 = 0
         y1 = SM.zeitZuPixel(self.startzeit)
+
+        x2 = SM.canvasWidth
         y2 = SM.zeitZuPixel(self.endzeit)
 
-        if self.form is None:
-            self.form[0] = SM.canvas.create_rectangle(0, y1, SM.canvasWidth, y2 ,fill=Farbkonzept.vormittag())
+        if len(self.form) == 0:
+            self.form.append(SM.canvas.create_rectangle(x1, y1, x2, y2 ,fill=Farbkonzept.vormittag()))
+            self.form.append(SM.canvas.create_text(int((x2 - x1) / 2), int(y1 + (y2-y1)/2), text=self.text))
         else:
-            SM.canvas.coords(self.form[0], 0, y1, SM.canvasWidth, y2)
+            SM.canvas.coords(self.form[0], x1, y1, x2, y2)
+            SM.canvas.coords(self.form[1], int((x2 - x1) / 2), int(y1 + (y2-y1)/2))
             SM.canvas.itemconfig(self.form[0], fill=Farbkonzept.vormittag())
+            SM.canvas.itemconfig(self.form[1], fill=Farbkonzept.nachmittag(), text=self.text)
 
 
     def zeichneMarkiert(self):
@@ -79,8 +90,8 @@ class Event(Objekt):
             ScreenManager.canvas.delete(form)
     def fokusiere(self):
         from ScreenManager import ScreenManager
-        ScreenManager.canvas.tag_bind(self.form[0], "<Key>", self.callbackText)
+        ScreenManager.canvas.bind("<Key>", self.callbackText)
 
     def unfokusiere(self):
         from ScreenManager import ScreenManager
-        ScreenManager.canvas.tag_unbind(self.form[0])
+        ScreenManager.canvas.unbind("<Key>")

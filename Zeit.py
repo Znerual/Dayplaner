@@ -153,7 +153,7 @@ class Zeit(Objekt):
         self.stunde = int(minuten / 60)
         self.minute = int(minuten % 60)
         self.text = f"{self.stunde:02}:{self.minute:02}"
-
+        return self
     def zeichne(self):
         pass
 
@@ -170,8 +170,8 @@ class Zeit(Objekt):
 
     def fokusiere(self):
         from ScreenManager import ScreenManager
-        ScreenManager.canvas.tag_bind(str(self), "<Key>", self.callbackVerschiebe)
+        ScreenManager.canvas.bind( "<Key>", self.callbackVerschiebe)
 
     def unfokusiere(self):
         from ScreenManager import ScreenManager
-        ScreenManager.canvas.tag_unbind(str(self))
+        ScreenManager.canvas.unbind( "<Key>")
