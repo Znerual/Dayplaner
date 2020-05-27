@@ -29,6 +29,17 @@ class Zeit(Objekt):
             except ValueError:
                 return None
 
+    def ZeitzuDecimal(self):
+        nachkomma = self.minute/60
+        deci = self.stunde + nachkomma
+        return deci
+
+    def DecimalzuZeit(x):
+        (h,m)=x.split('.')#klappt noch nicht weil x decimalzahl und nicht string ist
+        m=m*0.6
+        zeit=Zeit(h,m)
+        return zeit
+
     def __init__(self, stunde, minute, event=None):
         self.stunde = stunde
         self.minute = minute

@@ -8,17 +8,35 @@ class ScreenManager:
     screenHeight = 0
     canvasWidth = 0
     canvasHeight = 0
-
+    
     selected = None
 
-    # ZeitZuPixel hat immer x = 0  und y als aktuelle Höhe
-    @staticmethod
-    def zeitZuPixel(zeit):
-        pass
+
 
     @staticmethod
-    def pixelZuZeit(y):
-        pass
+    def ZeitZuPixel(zeit):
+        from TimeManager import TimeManager
+        from Zeit import Zeit
+        zeitspannePix = ScreenManager.canvasHeight / 5 * 4
+        aufstehLiniePix = ScreenManager.canvasHeight / 10  # 1/10 oben 1/10 unten platz
+        deci1=Zeit.ZeitzuDecimal(TimeManager.schlafenszeit-TimeManager.aufstehzeit)
+        ratio=zeitspannePix/deci1
+        deci2=Zeit.ZeitzuDecimal(zeit-TimeManager.aufstehzeit)
+        ypixel=aufstehLiniePix + deci2*ratio
+        return ypixel
+
+    @staticmethod
+    def PixelZuZeit(y):
+        from TimeManager import TimeManager
+        from Zeit import Zeit
+        zeitspannePix = ScreenManager.canvasHeight / 5 * 4
+        aufstehLiniePix = ScreenManager.canvasHeight / 10
+        deci1 = Zeit.ZeitzuDecimal(TimeManager.schlafenszeit-TimeManager.aufstehzeit)
+        ratio = zeitspannePix / deci1
+        tmp=(y-aufstehLiniePix)/ratio +Zeit.ZeitzuDecimal(TimeManager.aufstehzeit)
+        zeit=Zeit.DecimalzuZeit(tmp)
+        return zeit
+  
 
     def __init__(self):
         self.root = Tk()
@@ -33,6 +51,9 @@ class ScreenManager:
         self.root.update()
         ScreenManager.canvasWidth = self.canvas.winfo_width()
         ScreenManager.canvasHeight = self.canvas.winfo_height()
+        #self.root.mainloop() stattdessen beim testn "run" verwenden
+
+
 
     def run(self):
         self.root.mainloop()
@@ -79,4 +100,4 @@ class ScreenManager:
         if event is not None:
             pause = EventManager.addPause(zeit, EventManager.pausenLaenge)
             ScreenManager.selected = pause.endzeit
-            ScreenManager.selected.fokusiere()
+            ScreenManager.selected.fokusiere()r
