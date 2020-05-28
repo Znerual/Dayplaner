@@ -44,8 +44,8 @@ class ScreenManager:
     def init():
         ScreenManager.root = Tk()
         ScreenManager.screenWidth = int(ScreenManager.root.winfo_screenwidth() / 3)
-        ScreenManager.screenHeight = ScreenManager.root.winfo_screenheight()
-        ScreenManager.root.geometry(f"{ScreenManager.screenWidth}x{ScreenManager.screenHeight}")
+        ScreenManager.screenHeight = int(ScreenManager.root.winfo_screenheight() *0.9)
+        ScreenManager.root.geometry(f"{ScreenManager.screenWidth}x{ScreenManager.screenHeight}+0+0")
         ScreenManager.canvas = Canvas(ScreenManager.root, bg="white", width=ScreenManager.screenWidth,
                                       height=ScreenManager.screenHeight)  ##ndere white zu colormanager
         ScreenManager.canvas.pack()
@@ -55,6 +55,17 @@ class ScreenManager:
         ScreenManager.root.update()
         ScreenManager.canvasWidth = ScreenManager.canvas.winfo_width()
         ScreenManager.canvasHeight = ScreenManager.canvas.winfo_height()
+
+    @staticmethod
+    def zeichneHintergrund():
+        from TimeManager import TimeManager as TM
+        from EventManager import EventManager as EM
+
+        EM.mittagspause.zeichne()
+
+        #zeichne wichtige Linien
+        for zeit in TM.zeiten:
+            zeit.zeichne()
 
 
     @staticmethod
@@ -77,8 +88,9 @@ class ScreenManager:
         zeit = ScreenManager.pixelZuZeit(pixel[1]).runde(TimeManager.genauigkeit)  # ausgewählte Zeit, gerundet
         event = EventManager.findeEvent(zeit)
         if event is None:
-            neuesEvent = EventManager.addEvent(Event(zeit, zeit + EventManager.eventLaenge))
-            ScreenManager.selected = neuesEvent
+            if TimeManager.aufstehzeit <= zeit < TimeManager.schlafenszeit:
+                neuesEvent = EventManager.addEvent(Event(zeit, zeit + EventManager.eventLaenge))
+                ScreenManager.selected = neuesEvent
         else:
             if zeit.circa(event.startzeit):
                 ScreenManager.selected = event.startzeit
@@ -100,7 +112,7 @@ class ScreenManager:
             ScreenManager.selected.zeichne()
             ScreenManager.selected.unfokusiere()
 
-        pixel = (clickEvent.x_root, clickEvent.y_root)  # oder event.x für absolute SCeen position
+        pixel = (clickEvent.x, clickEvent.y)
         # x_root ist realtiv zum canvas
 
         zeit = ScreenManager.pixelZuZeit(pixel[1]).runde(TimeManager.genauigkeit)  # ausgewählte Zeit, gerundet

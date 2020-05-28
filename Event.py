@@ -3,7 +3,7 @@ from Objekt import Objekt
 
 class Event(Objekt):
 
-    def __init__(self, startzeit, endzeit, istPause=False):
+    def __init__(self, startzeit, endzeit, istPause=False, text="Test"):
         self.startzeit = startzeit
         self.endzeit = endzeit
 
@@ -71,7 +71,8 @@ class Event(Objekt):
             SM.canvas.coords(self.form[1], int((x2 - x1) / 2), int(y1 + (y2-y1)/2))
             SM.canvas.itemconfig(self.form[0], fill=Farbkonzept.vormittag())
             SM.canvas.itemconfig(self.form[1], fill=Farbkonzept.nachmittag(), text=self.text)
-
+        self.startzeit.zeichne()
+        self.endzeit.zeichne()
 
     def zeichneMarkiert(self):
         self.zeichne()

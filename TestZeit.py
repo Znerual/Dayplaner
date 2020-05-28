@@ -1,6 +1,6 @@
 import unittest
 from Zeit import Zeit
-
+from TimeManager import TimeManager as TM
 
 class TestZeit(unittest.TestCase):
     def test_Zeit_von_String(self):
@@ -20,6 +20,7 @@ class TestZeit(unittest.TestCase):
         self.assertIsNone(zeit4, "Zeit richtig verworfen")
 
     def test_circa(self):
+        TM.genauigkeit = Zeit(0,5)
         zeit1 = Zeit(14, 35)
         zeit2 = Zeit(14, 32)
         zeit3 = Zeit(15, 00)

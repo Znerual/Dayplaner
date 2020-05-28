@@ -2,8 +2,6 @@ from Objekt import Objekt
 
 
 class Zeit(Objekt):
-    toleranz = (0, 5)
-
     # Bestimmt die Zeit aus einem String, kann entweder im Format 12 oder 12:00 gemacht werden
     @staticmethod
     def fromString(text):
@@ -105,7 +103,8 @@ class Zeit(Objekt):
         self.text = other.text
 
     def circa(self, zeit):
-        if abs(self.stunde - zeit.stunde) <= Zeit.toleranz[0] and abs(self.minute - zeit.minute) <= Zeit.toleranz[1]:
+        from TimeManager import TimeManager as TM
+        if abs(self.stunde - zeit.stunde) <= TM.genauigkeit.stunde and abs(self.minute - zeit.minute) <= TM.genauigkeit.minute:
             return True
         return False
 
@@ -155,7 +154,23 @@ class Zeit(Objekt):
         self.text = f"{self.stunde:02}:{self.minute:02}"
         return self
     def zeichne(self):
-        pass
+        from ScreenManager import ScreenManager as SM
+        from Farbkonzept import Farbkonzept
+
+        x1 = 0
+        y1 = SM.zeitZuPixel(self)
+
+        x2 = SM.canvasWidth
+
+
+        if len(self.form) == 0:
+            self.form.append(SM.canvas.create_line(x1, y1, x2, y1, fill=Farbkonzept.vormittag_markiert()))
+            self.form.append(SM.canvas.create_text(int((x2 - x1) / 2), y1, text=self.text))
+        else:
+            SM.canvas.coords(self.form[0], x1, y1, x2, y1)
+            SM.canvas.coords(self.form[1], int((x2 - x1) / 2), y1)
+            SM.canvas.itemconfig(self.form[0], fill=Farbkonzept.vormittag())
+            SM.canvas.itemconfig(self.form[1], fill=Farbkonzept.nachmittag(), text=self.text)
 
     def zeichneMarkiert(self):
         pass

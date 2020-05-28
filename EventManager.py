@@ -4,7 +4,7 @@ from Zeit import Zeit
 
 class EventManager:
     events = []
-    mittagspause = Event(TimeManager.mittagspauseStart, TimeManager.mittagspauseEnde)
+    mittagspause = Event(TimeManager.mittagspauseStart, TimeManager.mittagspauseEnde, False, "Mittagspause")
     eventLaenge = Zeit(1,30)
     pausenLaenge = Zeit(0,10)
     #Es hat passieren können das beim Verschieben zwei Elemente exakt übereinder ilegen und damit beide
@@ -27,6 +27,21 @@ class EventManager:
     @staticmethod
     def addEvent(event):
         if event.endzeit <= event.startzeit: return
+
+        #prüft ob das event hinzugefügt werden darf
+        if event.startzeit >= TimeManager.schlafenszeit or event.endzeit <= TimeManager.aufstehzeit:
+            return
+        elif event.startzeit < TimeManager.aufstehzeit:
+            event.startzeit.set(TimeManager.aufstehzeit)
+        elif event.endzeit > TimeManager.schlafenszeit:
+            event.endzeit.set(TimeManager.schlafenszeit)
+        elif event.schneiden(EventManager.mittagspause):
+            if event.startzeit < EventManager.mittagspause.startzeit:
+                event.endzeit.set(TimeManager.mittagspause.startzeit)
+            elif event.endzeit > EventManager.mittagspause.endzeit:
+                event.startzeit.set(TimeManager.mittagspause.endzeit)
+            else:
+                return
         # passe das einzufügende Event an die Lücke an, dh überprüfen ob es überschneidungen gibt, Verknüpfungen
         # erstellen und nicht wie beim VerschiebenNach das andere Event anpassen, sonder das neue Event anpassen
         geschnitten = False
