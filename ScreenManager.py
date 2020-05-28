@@ -43,6 +43,7 @@ class ScreenManager:
     @staticmethod
     def init():
         ScreenManager.root = Tk()
+        ScreenManager.root.title("Tagesplaner")
         ScreenManager.screenWidth = int(ScreenManager.root.winfo_screenwidth() / 3)
         ScreenManager.screenHeight = int(ScreenManager.root.winfo_screenheight() *0.9)
         ScreenManager.root.geometry(f"{ScreenManager.screenWidth}x{ScreenManager.screenHeight}+0+0")
@@ -51,8 +52,9 @@ class ScreenManager:
         ScreenManager.canvas.pack()
         ScreenManager.canvas.bind("<Button-1>", ScreenManager.callbackLeftClick)
         ScreenManager.canvas.bind("<Button-3>", ScreenManager.callbackRightClick)
-        ScreenManager.canvas.focus_set()
         ScreenManager.root.update()
+        ScreenManager.root.bind("<Configure>", ScreenManager.callbackScreenSizeChanged)
+        ScreenManager.canvas.focus_set()
         ScreenManager.canvasWidth = ScreenManager.canvas.winfo_width()
         ScreenManager.canvasHeight = ScreenManager.canvas.winfo_height()
 
@@ -123,3 +125,35 @@ class ScreenManager:
             ScreenManager.selected = pause.endzeit
             ScreenManager.selected.zeichneMarkiert()
             ScreenManager.selected.fokusiere()
+
+    @staticmethod
+    def callbackScreenSizeChanged(ScreenEvent):
+        from EventManager import EventManager as EM
+
+        #aktualisiere die Variablen
+        ScreenManager.screenHeight =  ScreenEvent.height #ScreenManager.root.winfo_height()
+        ScreenManager.screenWidth = ScreenEvent.width#ScreenManager.root.winfo_width()
+        ScreenManager.canvasHeight = ScreenManager.screenHeight
+        ScreenManager.canvasWidth = ScreenManager.screenWidth
+
+        #passe Canvas an
+        ScreenManager.canvas.configure(width=ScreenManager.canvasWidth, height=ScreenManager.canvasHeight)
+
+        #zeichnet den Hintergrund neu, dafür muss die Mittagspause sowie die Zeit veraltet werden
+        ScreenManager.veralteHintergrund()
+        ScreenManager.zeichneHintergrund()
+
+        #zeichne die Events neu
+        for event in EM.events:
+            event.veralten()
+            event.zeichne()
+        if ScreenManager.selected is not None:
+            ScreenManager.selected.zeichneMarkiert()
+
+    @staticmethod
+    def veralteHintergrund():
+        from EventManager import EventManager as EM
+        from TimeManager import TimeManager as TM
+        EM.mittagspause.veralten()
+        for z in TM.zeiten:
+            z.veralte()

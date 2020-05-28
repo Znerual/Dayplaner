@@ -14,7 +14,7 @@ class Event(Objekt):
         self.eventDavor = None
         self.eventDanach = None
         self.form = []
-
+        self.veraltet = False
         self.istPause = istPause
 
     def __str__(self):
@@ -24,6 +24,11 @@ class Event(Objekt):
         if self is None and other is None: return True
         if self is None or other is None: return False
         return self.endzeit == other.endzeit and self.startzeit == other.startzeit
+
+    def veralten(self):
+        self.veraltet = True
+        self.startzeit.veraltet = True
+        self.endzeit.veraltet = True
 
     def schneiden(self, other):
         if (self.endzeit > other.startzeit and self.startzeit < other.endzeit) or (
@@ -57,6 +62,8 @@ class Event(Objekt):
         from ScreenManager import ScreenManager as SM
         from Farbkonzept import Farbkonzept
 
+        #TODO: VM - NM unterscheiden
+        #
         x1 = 0
         y1 = SM.zeitZuPixel(self.startzeit)
 
@@ -67,6 +74,8 @@ class Event(Objekt):
             self.form.append(SM.canvas.create_rectangle(x1, y1, x2, y2 ,fill=Farbkonzept.vormittag()))
             self.form.append(SM.canvas.create_text(int((x2 - x1) / 2), int(y1 + (y2-y1)/2), text=self.text))
         else:
+            if self.veraltet:
+                pass#TODO:lösche und zeichne komplett neu
             SM.canvas.coords(self.form[0], x1, y1, x2, y2)
             SM.canvas.coords(self.form[1], int((x2 - x1) / 2), int(y1 + (y2-y1)/2))
             SM.canvas.itemconfig(self.form[0], fill=Farbkonzept.vormittag())
@@ -75,6 +84,7 @@ class Event(Objekt):
         self.endzeit.zeichne()
 
     def zeichneMarkiert(self):
+        #TODO: ausprogrammieren
         self.zeichne()
 
     def entferne(self):
