@@ -37,9 +37,9 @@ class EventManager:
             event.endzeit.set(TimeManager.schlafenszeit)
         elif event.schneiden(EventManager.mittagspause):
             if event.startzeit < EventManager.mittagspause.startzeit:
-                event.endzeit.set(TimeManager.mittagspause.startzeit)
+                event.endzeit.set(EventManager.mittagspause.startzeit)
             elif event.endzeit > EventManager.mittagspause.endzeit:
-                event.startzeit.set(TimeManager.mittagspause.endzeit)
+                event.startzeit.set(EventManager.mittagspause.endzeit)
             else:
                 return
         # passe das einzufügende Event an die Lücke an, dh überprüfen ob es überschneidungen gibt, Verknüpfungen

@@ -82,7 +82,7 @@ class ScreenManager:
             ScreenManager.selected.zeichne() #damit es neu, ohne Markierung gezeichnet wird
             ScreenManager.selected.unfokusiere()
 
-        pixel = (clickEvent.x_root, clickEvent.y_root) # oder event.x für absolute SCeen position
+        pixel = (clickEvent.x, clickEvent.y) # oder event.x für absolute SCeen position
         # x_root ist realtiv zum canvas
 
         zeit = ScreenManager.pixelZuZeit(pixel[1]).runde(TimeManager.genauigkeit)  # ausgewählte Zeit, gerundet

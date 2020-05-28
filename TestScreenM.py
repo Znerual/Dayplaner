@@ -24,7 +24,10 @@ class TestScreenManager(unittest.TestCase):
         recnm = SM.canvas.create_rectangle(50, 250, 200, 300, fill=Farbkonzept.nachmittag())
         recnmm = SM.canvas.create_rectangle(50, 300, 200, 350, fill=Farbkonzept.nachmittag_markiert())
         self.text = SM.canvas.create_text(100, 20, text="Position")
+        SM.canvas.create_text(100,50, text=f"{SM.canvasHeight} vs {SM.screenHeight}")
         SM.canvas.bind("<Button-1>", self.callbackClick)
+        SM.zeichneHintergrund()
+
         SM.run()
         # kann rectangle nicht als objekt übergeben, hat nicht property configure
 
