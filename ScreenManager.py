@@ -2,6 +2,7 @@ from tkinter import *
 
 
 class ScreenManager:
+    root = None
     canvas = None
 
     screenWidth = 0
@@ -14,66 +15,84 @@ class ScreenManager:
 
 
     @staticmethod
-    def ZeitZuPixel(zeit):
+    def zeitZuPixel(zeit):
         from TimeManager import TimeManager
         from Zeit import Zeit
         zeitspannePix = ScreenManager.canvasHeight / 5 * 4
         aufstehLiniePix = ScreenManager.canvasHeight / 10  # 1/10 oben 1/10 unten platz
-        deci1=Zeit.ZeitzuDecimal(TimeManager.schlafenszeit-TimeManager.aufstehzeit)
-        ratio=zeitspannePix/deci1
-        deci2=Zeit.ZeitzuDecimal(zeit-TimeManager.aufstehzeit)
-        ypixel=aufstehLiniePix + deci2*ratio
+
+        ratio=zeitspannePix / (TimeManager.schlafenszeit-TimeManager.aufstehzeit).inMinuten() #Pixel/Minute
+        zeitNachAufstehenInMinuten = (zeit-TimeManager.aufstehzeit).inMinuten() #Zeit relativ zur Aufstehzeit
+        ypixel=aufstehLiniePix + zeitNachAufstehenInMinuten * ratio
         return ypixel
 
     @staticmethod
-    def PixelZuZeit(y):
+    def pixelZuZeit(y):
         from TimeManager import TimeManager
         from Zeit import Zeit
-        zeitspannePix = ScreenManager.canvasHeight / 5 * 4
+        zeit = Zeit(0, 0)
+
+        zeitspannePix = ScreenManager.canvasHeight / 5 * 4 #nutzbarer Bereich
         aufstehLiniePix = ScreenManager.canvasHeight / 10
-        deci1 = Zeit.ZeitzuDecimal(TimeManager.schlafenszeit-TimeManager.aufstehzeit)
-        ratio = zeitspannePix / deci1
-        tmp=(y-aufstehLiniePix)/ratio +Zeit.ZeitzuDecimal(TimeManager.aufstehzeit)
-        zeit=Zeit.DecimalzuZeit(tmp)
+        #rechne in Minuten
+        ratio = zeitspannePix / (TimeManager.schlafenszeit - TimeManager.aufstehzeit).inMinuten()
+        zeitInMinuten = (y-aufstehLiniePix)/ratio + TimeManager.aufstehzeit.inMinuten()
+        zeit.vonMinuten(zeitInMinuten)
         return zeit
   
+    @staticmethod
+    def init():
+        ScreenManager.root = Tk()
+        ScreenManager.root.title("Tagesplaner")
+        ScreenManager.screenWidth = int(ScreenManager.root.winfo_screenwidth() / 3)
+        ScreenManager.screenHeight = int(ScreenManager.root.winfo_screenheight() *0.9)
+        ScreenManager.root.geometry(f"{ScreenManager.screenWidth}x{ScreenManager.screenHeight}+0+0")
+        ScreenManager.canvas = Canvas(ScreenManager.root, bg="white", width=ScreenManager.screenWidth,
+                                      height=ScreenManager.screenHeight)  ##ndere white zu colormanager
+        ScreenManager.canvas.pack()
+        ScreenManager.canvas.bind("<Button-1>", ScreenManager.callbackLeftClick)
+        ScreenManager.canvas.bind("<Button-3>", ScreenManager.callbackRightClick)
+        ScreenManager.root.update()
+        ScreenManager.root.bind("<Configure>", ScreenManager.callbackScreenSizeChanged)
+        ScreenManager.canvas.focus_set()
+        ScreenManager.canvasWidth = ScreenManager.canvas.winfo_width()
+        ScreenManager.canvasHeight = ScreenManager.canvas.winfo_height()
 
-    def __init__(self):
-        self.root = Tk()
-        ScreenManager.screenWidth = self.root.winfo_screenwidth()
-        ScreenManager.screenHeight = self.root.winfo_screenheight()
-        self.root.geometry(f"{ScreenManager.screenWidth / 3}x{ScreenManager.screenHeight}")
-        ScreenManager.canvas = Canvas(self.root, bg="green", width=self.root.winfo_width(),
-                                      height=self.root.winfo_height())  ##ndere white zu colormanager
-        self.canvas.pack()
-        self.canvas.bind("<Button-1>", self.callbackLeftClick)
-        self.canvas.bind("<Button-3>", self.callbackRightClick)
-        self.root.update()
-        ScreenManager.canvasWidth = self.canvas.winfo_width()
-        ScreenManager.canvasHeight = self.canvas.winfo_height()
-        #self.root.mainloop() stattdessen beim testn "run" verwenden
+    @staticmethod
+    def zeichneHintergrund():
+        from TimeManager import TimeManager as TM
+        from EventManager import EventManager as EM
+
+        EM.mittagspause.zeichne()
+
+        #zeichne wichtige Linien
+        for zeit in TM.zeiten:
+            zeit.zeichne()
 
 
+    @staticmethod
+    def run():
+        ScreenManager.root.mainloop()
 
-    def run(self):
-        self.root.mainloop()
-
-    def callbackLeftClick(self, clickEvent):
+    @staticmethod
+    def callbackLeftClick(clickEvent):
         from EventManager import EventManager
         from TimeManager import TimeManager
         from Event import Event
 
         if ScreenManager.selected is not None:  # auswahl für altes Element aufheben
+            ScreenManager.selected.zeichne() #damit es neu, ohne Markierung gezeichnet wird
             ScreenManager.selected.unfokusiere()
 
-        pixel = (clickEvent.x_root, clickEvent.y_root) # oder event.x für absolute SCeen position
+        pixel = (clickEvent.x, clickEvent.y) # oder event.x für absolute SCeen position
         # x_root ist realtiv zum canvas
 
         zeit = ScreenManager.pixelZuZeit(pixel[1]).runde(TimeManager.genauigkeit)  # ausgewählte Zeit, gerundet
         event = EventManager.findeEvent(zeit)
         if event is None:
-            neuesEvent = EventManager.addEvent(Event(zeit, zeit + EventManager.eventLaenge))
-            ScreenManager.selected = neuesEvent
+            if TimeManager.aufstehzeit <= zeit < TimeManager.schlafenszeit:
+                neuesEvent = EventManager.addEvent(Event(zeit, zeit + EventManager.eventLaenge))
+                ScreenManager.selected = neuesEvent
         else:
             if zeit.circa(event.startzeit):
                 ScreenManager.selected = event.startzeit
@@ -82,22 +101,59 @@ class ScreenManager:
             else:
                 ScreenManager.selected = event
 
+        ScreenManager.selected.zeichneMarkiert()
         ScreenManager.selected.fokusiere()
 
-    def callbackRightClick(self, clickEvent):
+    @staticmethod
+    def callbackRightClick(clickEvent):
         from EventManager import EventManager
         from TimeManager import TimeManager
         from Event import Event
 
         if ScreenManager.selected is not None:  # auswahl für altes Element aufheben
+            ScreenManager.selected.zeichne()
             ScreenManager.selected.unfokusiere()
 
-        pixel = (clickEvent.x_root, clickEvent.y_root)  # oder event.x für absolute SCeen position
+        pixel = (clickEvent.x, clickEvent.y)
         # x_root ist realtiv zum canvas
 
         zeit = ScreenManager.pixelZuZeit(pixel[1]).runde(TimeManager.genauigkeit)  # ausgewählte Zeit, gerundet
         event = EventManager.findeEvent(zeit)
         if event is not None:
             pause = EventManager.addPause(zeit, EventManager.pausenLaenge)
+            pause.zeichne()
             ScreenManager.selected = pause.endzeit
-            ScreenManager.selected.fokusiere()r
+            ScreenManager.selected.zeichneMarkiert()
+            ScreenManager.selected.fokusiere()
+
+    @staticmethod
+    def callbackScreenSizeChanged(ScreenEvent):
+        from EventManager import EventManager as EM
+
+        #aktualisiere die Variablen
+        ScreenManager.screenHeight =  ScreenEvent.height #ScreenManager.root.winfo_height()
+        ScreenManager.screenWidth = ScreenEvent.width#ScreenManager.root.winfo_width()
+        ScreenManager.canvasHeight = ScreenManager.screenHeight
+        ScreenManager.canvasWidth = ScreenManager.screenWidth
+
+        #passe Canvas an
+        ScreenManager.canvas.configure(width=ScreenManager.canvasWidth, height=ScreenManager.canvasHeight)
+
+        #zeichnet den Hintergrund neu, dafür muss die Mittagspause sowie die Zeit veraltet werden
+        ScreenManager.veralteHintergrund()
+        ScreenManager.zeichneHintergrund()
+
+        #zeichne die Events neu
+        for event in EM.events:
+            event.veralten()
+            event.zeichne()
+        if ScreenManager.selected is not None:
+            ScreenManager.selected.zeichneMarkiert()
+
+    @staticmethod
+    def veralteHintergrund():
+        from EventManager import EventManager as EM
+        from TimeManager import TimeManager as TM
+        EM.mittagspause.veralten()
+        for z in TM.zeiten:
+            z.veralte()

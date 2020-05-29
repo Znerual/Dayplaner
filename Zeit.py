@@ -2,8 +2,6 @@ from Objekt import Objekt
 
 
 class Zeit(Objekt):
-    toleranz = (0, 5)
-
     # Bestimmt die Zeit aus einem String, kann entweder im Format 12 oder 12:00 gemacht werden
     @staticmethod
     def fromString(text):
@@ -29,24 +27,13 @@ class Zeit(Objekt):
             except ValueError:
                 return None
 
-    def ZeitzuDecimal(self):
-        nachkomma = self.minute/60
-        deci = self.stunde + nachkomma
-        return deci
-
-    def DecimalzuZeit(x):
-        (h,m)=x.split('.')#klappt noch nicht weil x decimalzahl und nicht string ist
-        m=m*0.6
-        zeit=Zeit(h,m)
-        return zeit
-
     def __init__(self, stunde, minute, event=None):
         self.stunde = stunde
         self.minute = minute
         self.event = event
         self.text = f"{self.stunde:02}:{self.minute:02}"
         self.form = []
-
+        self.veraltet = False
     def __str__(self):
         if self.event is None:
             return f"Zeit {self.stunde:02}:{self.minute:02}"
@@ -116,7 +103,8 @@ class Zeit(Objekt):
         self.text = other.text
 
     def circa(self, zeit):
-        if abs(self.stunde - zeit.stunde) <= Zeit.toleranz[0] and abs(self.minute - zeit.minute) <= Zeit.toleranz[1]:
+        from TimeManager import TimeManager as TM
+        if abs(self.stunde - zeit.stunde) <= TM.genauigkeit.stunde and abs(self.minute - zeit.minute) <= TM.genauigkeit.minute:
             return True
         return False
 
@@ -125,9 +113,9 @@ class Zeit(Objekt):
         if mod == 0:
             return self
         elif mod < genauigkeit.inMinuten() / 2:
-            return self.fromMinuten(self.inMinuten() - mod)
+            return self.vonMinuten(self.inMinuten() - mod)
         else:
-            return self.fromMinuten(self.inMinuten() +  (genauigkeit.inMinuten() -mod))
+            return self.vonMinuten(self.inMinuten() + (genauigkeit.inMinuten() - mod))
 
     def istStartzeit(self):
         if self.circa(self.event.startzeit): return True
@@ -160,16 +148,38 @@ class Zeit(Objekt):
     def inMinuten(self):
         return self.stunde * 60 + self.minute
 
-    def fromMinuten(self, minuten):
+    def vonMinuten(self, minuten):
         self.stunde = int(minuten / 60)
         self.minute = int(minuten % 60)
         self.text = f"{self.stunde:02}:{self.minute:02}"
+        return self
 
     def zeichne(self):
-        pass
+        from ScreenManager import ScreenManager as SM
+        from Farbkonzept import Farbkonzept
+
+        #TODO: Vormittag - Nachmittag Unterscheidung
+        #TODO: Schritart anpassen
+        x1 = 0
+        y1 = SM.zeitZuPixel(self)
+
+        x2 = SM.canvasWidth
+
+
+        if len(self.form) == 0:
+            self.form.append(SM.canvas.create_line(x1, y1, x2, y1, fill=Farbkonzept.vormittag_markiert()))
+            self.form.append(SM.canvas.create_text(int((x2 - x1) / 2), y1, text=self.text))
+        else:
+            if self.veraltet:
+                pass #TODO:lösche und zeichne komplett neu
+            SM.canvas.coords(self.form[0], x1, y1, x2, y1)
+            SM.canvas.coords(self.form[1], int((x2 - x1) / 2), y1)
+            SM.canvas.itemconfig(self.form[0], fill=Farbkonzept.vormittag())
+            SM.canvas.itemconfig(self.form[1], fill=Farbkonzept.nachmittag(), text=self.text)
 
     def zeichneMarkiert(self):
         pass
+        #TODO: Ausprogrammieren
 
     def entferne(self):
         from ScreenManager import ScreenManager
@@ -181,8 +191,11 @@ class Zeit(Objekt):
 
     def fokusiere(self):
         from ScreenManager import ScreenManager
-        ScreenManager.canvas.tag_bind(str(self), "<Key>", self.callbackVerschiebe)
+        ScreenManager.canvas.bind( "<Key>", self.callbackVerschiebe)
 
     def unfokusiere(self):
         from ScreenManager import ScreenManager
-        ScreenManager.canvas.tag_unbind(str(self))
+        ScreenManager.canvas.unbind( "<Key>")
+
+    def veralte(self):
+        self.veraltet = True
