@@ -69,6 +69,7 @@ class Zeit(Objekt):
 
     def __gt__(self, other):
         if self.datum > other.datum: return True
+        if self.datum < other.datum: return False
         if self.stunde > other.stunde: return True
         if self.stunde < other.stunde: return False
         if self.minute > other.minute: return True
@@ -76,6 +77,7 @@ class Zeit(Objekt):
 
     def __ge__(self, other):
         if self.datum > other.datum: return True
+        if self.datum < other.datum: return False
         if self.stunde > other.stunde: return True
         if self.stunde < other.stunde: return False
         if self.minute >= other.minute: return True

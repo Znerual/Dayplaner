@@ -37,21 +37,21 @@ class TestZeit(unittest.TestCase):
         self.assertFalse(zeit1.circa(zeit2))
         self.assertTrue(zeit1.circa(zeit3))
     def test_addition(self):
-        zeit1 = Zeit(14, 35, date(2020,1,1))
+        zeit1 = Zeit(14, 35)
         zeit2 = Zeit(2, 0)
         zeit3 = Zeit(3, 30)
-        zeit4 = Zeit(12, 30, date(2020,1,1))
-        self.assertEqual(str(zeit1 + zeit2), "Zeit 16:35 am 1.1.2020")
-        self.assertEqual(str(zeit1 + zeit3), "Zeit 18:05 am 1.1.2020")
+        zeit4 = Zeit(12, 30)
+        self.assertEqual(str(zeit1 + zeit2), f"Zeit 16:35 am {zeit1.erhalteDatum()}")
+        self.assertEqual(str(zeit1 + zeit3), f"Zeit 18:05 am {zeit1.erhalteDatum()}")
         # self.assertIsNone(str(zeit1 + zeit4))
 
     def test_subtraktion(self):
-        zeit1 = Zeit(14, 35, date(2020,1,1))
-        zeit2 = Zeit(2, 0, date(0,0,0))
-        zeit3 = Zeit(3, 40, date(0,0,0))
-        zeit4 = Zeit(12, 30, date(2020,1,1))
-        self.assertEqual(str(zeit1 - zeit2), "Zeit 12:35 am 1.1.2020")
-        self.assertEqual(str(zeit1 - zeit3), "Zeit 10:55 am 1.1.2020")
+        zeit1 = Zeit(14, 35)
+        zeit2 = Zeit(2, 0)
+        zeit3 = Zeit(3, 40)
+        zeit4 = Zeit(12, 30)
+        self.assertEqual(str(zeit1 - zeit2), f"Zeit 12:35 am {zeit1.erhalteDatum()}")
+        self.assertEqual(str(zeit1 - zeit3), f"Zeit 10:55 am {zeit1.erhalteDatum()}")
         # self.assertIsNone(str(zeit3 - zeit4))
 
     def test_groesser(self):
