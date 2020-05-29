@@ -10,7 +10,7 @@ class ScreenManager:
     canvasWidth = 0
     canvasHeight = 0
     
-    selected = None
+    ausgewaehlt = None
 
 
 
@@ -80,29 +80,37 @@ class ScreenManager:
         from TimeManager import TimeManager
         from Event import Event
 
-        if ScreenManager.selected is not None:  # auswahl für altes Element aufheben
-            ScreenManager.selected.zeichne() #damit es neu, ohne Markierung gezeichnet wird
-            ScreenManager.selected.unfokusiere()
+        if ScreenManager.ausgewaehlt is not None:  # auswahl für altes Element aufheben
+            ScreenManager.ausgewaehlt.zeichne() #damit es neu, ohne Markierung gezeichnet wird
+            ScreenManager.ausgewaehlt.unfokusiere()
 
         pixel = (clickEvent.x, clickEvent.y) # oder event.x für absolute SCeen position
         # x_root ist realtiv zum canvas
 
         zeit = ScreenManager.pixelZuZeit(pixel[1]).runde(TimeManager.genauigkeit)  # ausgewählte Zeit, gerundet
+        gefundeneZeit = TimeManager.findeZeit(zeit)
+        if gefundeneZeit is not None:
+            gefundeneZeit.zeichneMarkiert()
+            ScreenManager.ausgewaehlt = gefundeneZeit
+            ScreenManager.ausgewaehlt.fokusiere()
+            return
         event = EventManager.findeEvent(zeit)
         if event is None:
             if TimeManager.aufstehzeit <= zeit < TimeManager.schlafenszeit:
                 neuesEvent = EventManager.addEvent(Event(zeit, zeit + EventManager.eventLaenge))
-                ScreenManager.selected = neuesEvent
+                ScreenManager.ausgewaehlt = neuesEvent
+            else:
+                return
         else:
             if zeit.circa(event.startzeit):
-                ScreenManager.selected = event.startzeit
+                ScreenManager.ausgewaehlt = event.startzeit
             elif zeit.circa(event.endzeit):
-                ScreenManager.selected = event.endzeit
+                ScreenManager.ausgewaehlt = event.endzeit
             else:
-                ScreenManager.selected = event
+                ScreenManager.ausgewaehlt = event
 
-        ScreenManager.selected.zeichneMarkiert()
-        ScreenManager.selected.fokusiere()
+        ScreenManager.ausgewaehlt.zeichneMarkiert()
+        ScreenManager.ausgewaehlt.fokusiere()
 
     @staticmethod
     def callbackRightClick(clickEvent):
@@ -110,9 +118,9 @@ class ScreenManager:
         from TimeManager import TimeManager
         from Event import Event
 
-        if ScreenManager.selected is not None:  # auswahl für altes Element aufheben
-            ScreenManager.selected.zeichne()
-            ScreenManager.selected.unfokusiere()
+        if ScreenManager.ausgewaehlt is not None:  # auswahl für altes Element aufheben
+            ScreenManager.ausgewaehlt.zeichne()
+            ScreenManager.ausgewaehlt.unfokusiere()
 
         pixel = (clickEvent.x, clickEvent.y)
         # x_root ist realtiv zum canvas
@@ -122,9 +130,9 @@ class ScreenManager:
         if event is not None:
             pause = EventManager.addPause(zeit, EventManager.pausenLaenge)
             pause.zeichne()
-            ScreenManager.selected = pause.endzeit
-            ScreenManager.selected.zeichneMarkiert()
-            ScreenManager.selected.fokusiere()
+            ScreenManager.ausgewaehlt = pause.endzeit
+            ScreenManager.ausgewaehlt.zeichneMarkiert()
+            ScreenManager.ausgewaehlt.fokusiere()
 
     @staticmethod
     def callbackScreenSizeChanged(ScreenEvent):
@@ -147,9 +155,11 @@ class ScreenManager:
         for event in EM.events:
             event.veralten()
             event.zeichne()
-        if ScreenManager.selected is not None:
-            ScreenManager.selected.zeichneMarkiert()
+        if ScreenManager.ausgewaehlt is not None:
+            ScreenManager.ausgewaehlt.zeichneMarkiert()
 
+    #TODO: Key callback falls nichts ausgewählt ist, dass die Auswahl mit der Tastatur zulösst und neue Events
+    #erstellen lösst. Außerdem optional noch falls man +drückt das Event um die danach eingegebene Zeit verschiebt
     @staticmethod
     def veralteHintergrund():
         from EventManager import EventManager as EM

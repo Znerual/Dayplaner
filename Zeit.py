@@ -5,7 +5,7 @@ class Zeit(Objekt):
     # Bestimmt die Zeit aus einem String, kann entweder im Format 12 oder 12:00 gemacht werden
     @staticmethod
     def fromString(text):
-        if len(text) == 2:
+        if len(text) <= 2:
             try:
                 stunde = int(text)
                 if 0 <= stunde <= 24:
@@ -15,10 +15,12 @@ class Zeit(Objekt):
                     return None
             except ValueError:
                 return None
-        if len(text) == 5:
+        elif len(text) <= 5:
             try:
-                stunde = int(text[0:2])
-                minute = int(text[3:5])
+                pos = text.find(":")
+                if pos == -1: return None
+                stunde = int(text[:pos])
+                minute = int(text[pos +1 :])
                 if 0 <= stunde <= 24 and 0 <= minute <= 60:
                     zeit = Zeit(stunde, minute)
                     return zeit
@@ -125,26 +127,29 @@ class Zeit(Objekt):
 
     def callbackVerschiebe(self, event):
         from EventManager import EventManager
+        from TimeManager import TimeManager
         if event.keysym == "Return":
-            self.unfokusiere()
             nach = Zeit.fromString(self.text)
+            self.unfokusiere()
+            self.aktualisiereText() #setzt den Text auf die gespeicherte Zeit, wird nur überschrieben falls nach passt
             if nach is not None:
                 if self.event is not None:
-                    EventManager.verschiebeZeitNach(self.event, event.istStartzeit(), nach)
+                    EventManager.verschiebeZeitNach(self.event, self.istStartzeit(), nach)
+                    self.text = nach.text
+
                     # überprüft ob die Zeit die Start oder Endzeit ist wenn sie einem Event zugeordnet ist
                     assert (self.istStartzeit() or self.istEndzeit())
-                    assert (not self.istStartzeit() and self.istEndzeit())
+                    assert not( self.istStartzeit() and self.istEndzeit())
                 else:
-                    self.stunde = nach.stunde
-                    self.minute = nach.minute
-                    self.text = nach.text
+                    TimeManager.verschiebeZeit(self, nach)
+            self.zeichne()
         elif event.keysym == "BackSpace":
             self.text = self.text[:-1]
         elif event.keysym == "Delete":
             self.unfokusiere()
         else:
             self.text += event.char
-
+        self.zeichneMarkiert()
     def inMinuten(self):
         return self.stunde * 60 + self.minute
 
@@ -153,6 +158,9 @@ class Zeit(Objekt):
         self.minute = int(minuten % 60)
         self.text = f"{self.stunde:02}:{self.minute:02}"
         return self
+
+    def aktualisiereText(self):
+        self.text = f"{self.stunde:02}:{self.minute:02}"
 
     def zeichne(self):
         from ScreenManager import ScreenManager as SM
@@ -168,17 +176,17 @@ class Zeit(Objekt):
 
         if len(self.form) == 0:
             self.form.append(SM.canvas.create_line(x1, y1, x2, y1, fill=Farbkonzept.vormittag_markiert()))
-            self.form.append(SM.canvas.create_text(int((x2 - x1) / 2), y1, text=self.text))
+            self.form.append(SM.canvas.create_text(int((x2 - x1) / 2), y1, fill="Black",text=self.text))
         else:
             if self.veraltet:
                 pass #TODO:lösche und zeichne komplett neu
             SM.canvas.coords(self.form[0], x1, y1, x2, y1)
             SM.canvas.coords(self.form[1], int((x2 - x1) / 2), y1)
             SM.canvas.itemconfig(self.form[0], fill=Farbkonzept.vormittag())
-            SM.canvas.itemconfig(self.form[1], fill=Farbkonzept.nachmittag(), text=self.text)
+            SM.canvas.itemconfig(self.form[1], fill="Black", text=self.text)
 
     def zeichneMarkiert(self):
-        pass
+        self.zeichne()
         #TODO: Ausprogrammieren
 
     def entferne(self):
@@ -191,11 +199,12 @@ class Zeit(Objekt):
 
     def fokusiere(self):
         from ScreenManager import ScreenManager
-        ScreenManager.canvas.bind( "<Key>", self.callbackVerschiebe)
-
+        self.text = ""
+        ScreenManager.canvas.bind("<Key>", self.callbackVerschiebe)
+        print("Fokusiere Zeit")
     def unfokusiere(self):
         from ScreenManager import ScreenManager
-        ScreenManager.canvas.unbind( "<Key>")
-
+        ScreenManager.canvas.unbind("<Key>")
+        self.aktualisiereText()
     def veralte(self):
         self.veraltet = True

@@ -3,7 +3,7 @@ from Event import Event
 from Zeit import Zeit
 from EventManager import EventManager as EM
 from TimeManager import TimeManager as TM
-
+from ScreenManager import ScreenManager as SM
 # Hier wird die Klasse Event sowie die Klasse EventManager getestet
 class TestEvent(unittest.TestCase):
     def test_schneiden(self):
@@ -41,6 +41,7 @@ class TestEvent(unittest.TestCase):
 
     def test_addEvent(self):
         EM.events = []
+        SM.init()
         event1 = Event(Zeit(14, 30), Zeit(15, 00))
         event2 = Event(Zeit(16, 30), Zeit(17, 00))
         event3 = Event(Zeit(14, 45), Zeit(17, 00))

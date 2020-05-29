@@ -173,7 +173,7 @@ class EventManager:
                 elif (oevent.endzeit > event.endzeit):
                     oevent.eventDavor = event
                     event.eventDanach = oevent
-
+        event.zeichne()
     # Verschiebt eine Zeit, nur falls startzeit vor endzeit liegt
     @staticmethod
     def verschiebeZeitNach(event, istStartzeit, zeit):
@@ -210,7 +210,8 @@ class EventManager:
                 elif not istStartzeit and oevent.startzeit == event.endzeit:
                     event.eventDanach = oevent
                     oevent.eventDavor = event
-
+        event.veralten()
+        event.zeichne()
     # Methode um Event in zwei kleinere Events zur Zeit zeit aufzuspalten
     @staticmethod
     def trenneEvent(event, zeit):
@@ -221,6 +222,8 @@ class EventManager:
         EventManager.verschiebeZeitNach(event, False, zeit)
         event2 = Event(event.endzeit, event.endzeit + deltaZeit)
         EventManager.addEvent(event2)
+        event.veralten()
+        event.zeichne()
         return (event, event2)
     #findet event falls die Zeit zwischen inklusive Anfangszeit und exklusive Endzeit des EVents liegt
     @staticmethod
@@ -259,3 +262,11 @@ class EventManager:
                 EventManager.verschiebeEventUm(event, dauer)
             EventManager.addEvent(pause)
         return pause
+
+    @staticmethod
+    def speichereEvents():
+        pass #TODO
+
+    @staticmethod
+    def ladeEvents():
+        pass #TODO
