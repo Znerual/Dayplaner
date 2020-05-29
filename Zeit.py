@@ -1,5 +1,5 @@
 from Objekt import Objekt
-
+from datetime import date, timedelta
 
 class Zeit(Objekt):
     # Bestimmt die Zeit aus einem String, kann entweder im Format 12 oder 12:00 gemacht werden
@@ -29,42 +29,53 @@ class Zeit(Objekt):
             except ValueError:
                 return None
 
-    def __init__(self, stunde, minute, event=None):
+    def __init__(self, stunde, minute, datum=date.today(),event=None):
         self.stunde = stunde
         self.minute = minute
         self.event = event
         self.text = f"{self.stunde:02}:{self.minute:02}"
         self.form = []
         self.veraltet = False
+        self.datum = datum
     def __str__(self):
         if self.event is None:
-            return f"Zeit {self.stunde:02}:{self.minute:02}"
+            return f"Zeit {self.stunde:02}:{self.minute:02} am {self.datum.strftime('%d.%m.%Y')}"
         else:
-            return f"Zeit {self.stunde:02}:{self.minute:02} zu Event {self.event}"
+            return f"Zeit {self.stunde:02}:{self.minute:02} am {self.datum.strftime('%d.%m.%Y')} zu Event {self.event}"
 
     def __add__(self, other):
         assert (not (self.event is not None and other.event is not None) or self.event == other.event)
         #assert (self.stunde + other.stunde + (self.minute + other.minute) / 60 <= 24) #achtung, Stunde kann damit > 24 sein!
+        assert self.datum == other.datum
         stunde = self.stunde + other.stunde
         minute = self.minute + other.minute
+        datum = self.datum
         if minute >= 60:
             stunde += 1
             minute -= 60
         if minute < 0:
             stunde -= 1
             minute += 60
+        if stunde >= 24:
+            stunde -= 24
+            datum += timedelta(days=1)
+        if stunde < 0:
+            stunde += 24
+            datum += timedelta(days=-1)
         event = self.event
         if event is None:
             event = other.event
-        return Zeit(stunde, minute, event)
+        return Zeit(stunde, minute, datum, event)
 
     def __gt__(self, other):
+        if self.datum > other.datum: return True
         if self.stunde > other.stunde: return True
         if self.stunde < other.stunde: return False
         if self.minute > other.minute: return True
         return False
 
     def __ge__(self, other):
+        if self.datum > other.datum: return True
         if self.stunde > other.stunde: return True
         if self.stunde < other.stunde: return False
         if self.minute >= other.minute: return True
@@ -77,24 +88,31 @@ class Zeit(Objekt):
         return not (self > other)
 
     def __sub__(self, other):
+        assert self.datum == other.datum
         stunde = self.stunde - other.stunde
         minute = self.minute - other.minute
+        datum = self.datum
         if minute < 0:
             stunde -= 1
             minute += 60
         if minute > 60:
             stunde += 1
             minute -= 60
-
+        if stunde >= 24:
+            stunde -= 24
+            datum += timedelta(days=1)
+        if stunde < 0:
+            stunde += 24
+            datum += timedelta(days=-1)
         event = self.event
         if event is None:
             event = other.event
-        return Zeit(stunde, minute, event)
+        return Zeit(stunde, minute, datum, event)
 
     def __eq__(self, other):
         if self is None and other is None: return True
         if self is None or other is None: return False
-        return self.stunde == other.stunde and self.minute == other.minute
+        return self.datum == other.datum and self.stunde == other.stunde and self.minute == other.minute
 
     def setEvent(self, event):
         self.event = event
@@ -102,22 +120,34 @@ class Zeit(Objekt):
     def set(self, other):
         self.stunde = other.stunde
         self.minute = other.minute
+        self.datum = other.datum
         self.text = other.text
+
+    def erhalteDatum(self):
+        return self.datum.strftime('%d.%m.%Y')
+
+    def verschiebeAufMorgen(self):
+        self.datum += timedelta(days=1)
+        return self
+
+    def verschiebeAufGestern(self):
+        self.datum += timedelta(days=-1)
+        return self
 
     def circa(self, zeit):
         from TimeManager import TimeManager as TM
-        if abs(self.stunde - zeit.stunde) <= TM.genauigkeit.stunde and abs(self.minute - zeit.minute) <= TM.genauigkeit.minute:
+        if self.datum == zeit.datum and abs(self.stunde - zeit.stunde) <= TM.genauigkeit.stunde and abs(self.minute - zeit.minute) <= TM.genauigkeit.minute:
             return True
         return False
 
     def runde(self, genauigkeit):
-        mod = self.inMinuten() % genauigkeit.inMinuten()
+        mod = self.zeitInMinuten() % genauigkeit.zeitInMinuten()
         if mod == 0:
             return self
-        elif mod < genauigkeit.inMinuten() / 2:
-            return self.vonMinuten(self.inMinuten() - mod)
+        elif mod < genauigkeit.zeitInMinuten() / 2:
+            return self.vonMinuten(self.zeitInMinuten() - mod)
         else:
-            return self.vonMinuten(self.inMinuten() + (genauigkeit.inMinuten() - mod))
+            return self.vonMinuten(self.zeitInMinuten() + (genauigkeit.zeitInMinuten() - mod))
 
     def istStartzeit(self):
         if self.circa(self.event.startzeit): return True
@@ -150,7 +180,7 @@ class Zeit(Objekt):
         else:
             self.text += event.char
         self.zeichneMarkiert()
-    def inMinuten(self):
+    def zeitInMinuten(self):
         return self.stunde * 60 + self.minute
 
     def vonMinuten(self, minuten):

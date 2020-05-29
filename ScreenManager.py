@@ -21,8 +21,8 @@ class ScreenManager:
         zeitspannePix = ScreenManager.canvasHeight / 5 * 4
         aufstehLiniePix = ScreenManager.canvasHeight / 10  # 1/10 oben 1/10 unten platz
 
-        ratio=zeitspannePix / (TimeManager.schlafenszeit-TimeManager.aufstehzeit).inMinuten() #Pixel/Minute
-        zeitNachAufstehenInMinuten = (zeit-TimeManager.aufstehzeit).inMinuten() #Zeit relativ zur Aufstehzeit
+        ratio=zeitspannePix / (TimeManager.schlafenszeit-TimeManager.aufstehzeit).zeitInMinuten() #Pixel/Minute
+        zeitNachAufstehenInMinuten = (zeit-TimeManager.aufstehzeit).zeitInMinuten() #Zeit relativ zur Aufstehzeit
         ypixel=aufstehLiniePix + zeitNachAufstehenInMinuten * ratio
         return ypixel
 
@@ -35,8 +35,8 @@ class ScreenManager:
         zeitspannePix = ScreenManager.canvasHeight / 5 * 4 #nutzbarer Bereich
         aufstehLiniePix = ScreenManager.canvasHeight / 10
         #rechne in Minuten
-        ratio = zeitspannePix / (TimeManager.schlafenszeit - TimeManager.aufstehzeit).inMinuten()
-        zeitInMinuten = (y-aufstehLiniePix)/ratio + TimeManager.aufstehzeit.inMinuten()
+        ratio = zeitspannePix / (TimeManager.schlafenszeit - TimeManager.aufstehzeit).zeitInMinuten()
+        zeitInMinuten = (y-aufstehLiniePix)/ratio + TimeManager.aufstehzeit.zeitInMinuten()
         zeit.vonMinuten(zeitInMinuten)
         return zeit
   
