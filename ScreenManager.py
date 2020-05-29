@@ -84,6 +84,8 @@ class ScreenManager:
         from TimeManager import TimeManager
         from Event import Event
 
+        #TODO: Problem wenn <Key> Callback auf Text oder Zeit aktiviert ist und dann ein anderes Objekt ausgewählt wird
+
         if ScreenManager.ausgewaehlt is not None:  # auswahl für altes Element aufheben
             ScreenManager.ausgewaehlt.zeichne() #damit es neu, ohne Markierung gezeichnet wird
             ScreenManager.ausgewaehlt.unfokusiere()
@@ -98,7 +100,7 @@ class ScreenManager:
             ScreenManager.ausgewaehlt = gefundeneZeit
             ScreenManager.ausgewaehlt.fokusiere()
             return
-        event = EventManager.findeEvent(zeit)
+        event = EventManager.findeEvent(zeit, TimeManager.genauigkeit)
         if event is None:
             if TimeManager.aufstehzeit <= zeit < TimeManager.schlafenszeit:
                 neuesEvent = EventManager.addEvent(Event(zeit, zeit + EventManager.eventLaenge))

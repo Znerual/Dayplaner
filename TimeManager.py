@@ -4,6 +4,8 @@ from Zeit import Zeit
 class TimeManager:
 
     aufstehzeit = Zeit(8, 0)
+
+    #TODO: Mittagspause hier herauslöschen und nur über EventManager.mittagspause verändern
     mittagspauseStart = Zeit(12, 30)
     mittagspauseEnde = Zeit(13, 30)
     schlafenszeit = Zeit(23, 00)

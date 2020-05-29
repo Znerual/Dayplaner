@@ -178,13 +178,20 @@ class EventManager:
     @staticmethod
     def verschiebeZeitNach(event, istStartzeit, zeit):
         # überprüft ob verschiebung erlaubt
+        deltaZeit = event.endzeit - event.startzeit
         if istStartzeit:
-            if event.endzeit - zeit <= TimeManager.null: return
-            event.startzeit.set(zeit)
+            if event.endzeit - zeit <= TimeManager.null:
+                event.startzeit.set(zeit)
+                event.endzeit.set(zeit + deltaZeit)
+                event.zeichne()
+            else:
+                event.startzeit.set(zeit)
         else:
-            if zeit - event.startzeit <= TimeManager.null: return
-            event.endzeit.set(zeit)
-
+            if zeit - event.startzeit <= TimeManager.null:
+                event.endzeit.set(zeit)
+                event.startzeit.set(zeit - deltaZeit)
+            else:
+                event.endzeit.set(zeit)
         # überschneidungen korrigieren, indem die Grenzen strikt neu verändern werden. Anhängende Teile werden nicht
         # verschoben sonder gekürzt
         otherEvents = EventManager.getEventsWithoutEvent(event)
@@ -195,11 +202,13 @@ class EventManager:
                     break
                 elif oevent.startzeit < event.startzeit < oevent.endzeit:  # anderes Event schneidet von oben hinein
                     oevent.endzeit.set(event.startzeit)
+                    oevent.zeichne()
                     oevent.eventDanach = event
                     event.eventDavor = oevent
                     break
                 elif oevent.startzeit > event.startzeit and oevent.endzeit > event.endzeit:  # anderes event runtscht von unten hinein
                     oevent.startzeit.set(event.endzeit)
+                    oevent.zeichne()
                     oevent.eventDavor = event
                     event.eventDanach = oevent
                     break
@@ -225,10 +234,15 @@ class EventManager:
         return (event, event2)
     #findet event falls die Zeit zwischen inklusive Anfangszeit und exklusive Endzeit des EVents liegt
     @staticmethod
-    def findeEvent(zeit):
-        for event in EventManager.events:
-            if event.startzeit <= zeit < event.endzeit:
-                return event
+    def findeEvent(zeit, genauigkeit=None):
+        if genauigkeit is None:
+            for event in EventManager.events:
+                if event.startzeit <= zeit < event.endzeit:
+                    return event
+        else:
+            for event in EventManager.events:
+                if event.startzeit <= zeit + genauigkeit and zeit - genauigkeit < event.endzeit:
+                    return event
         return None
 
     #finde Events exklusive der Grenzen
