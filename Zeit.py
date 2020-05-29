@@ -56,12 +56,6 @@ class Zeit(Objekt):
         if minute < 0:
             stunde -= 1
             minute += 60
-        if stunde >= 24:
-            stunde -= 24
-            datum += timedelta(days=1)
-        if stunde < 0:
-            stunde += 24
-            datum += timedelta(days=-1)
         event = self.event
         if event is None:
             event = other.event
@@ -100,12 +94,6 @@ class Zeit(Objekt):
         if minute > 60:
             stunde += 1
             minute -= 60
-        if stunde >= 24:
-            stunde -= 24
-            datum += timedelta(days=1)
-        if stunde < 0:
-            stunde += 24
-            datum += timedelta(days=-1)
         event = self.event
         if event is None:
             event = other.event

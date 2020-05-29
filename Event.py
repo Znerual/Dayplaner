@@ -18,7 +18,7 @@ class Event(Objekt):
         self.istPause = istPause
 
     def __str__(self):
-        return f"Start {self.startzeit.stunde:02}:{self.startzeit.minute:02} Ende {self.endzeit.stunde:02}:{self.endzeit.minute:02}"
+        return f"Start {self.startzeit.stunde:02}:{self.startzeit.minute:02} Ende {self.endzeit.stunde:02}:{self.endzeit.minute:02} am {self.startzeit.erhalteDatum()}"
 
     def __eq__(self, other):
         if self is None and other is None: return True
