@@ -147,23 +147,14 @@ class ScreenManager:
         #passe Canvas an
         ScreenManager.canvas.configure(width=ScreenManager.canvasWidth, height=ScreenManager.canvasHeight)
 
-        #zeichnet den Hintergrund neu, dafür muss die Mittagspause sowie die Zeit veraltet werden
-        ScreenManager.veralteHintergrund()
+        #zeichnet den Hintergrund neu
         ScreenManager.zeichneHintergrund()
 
         #zeichne die Events neu
         for event in EM.events:
-            event.veralten()
             event.zeichne()
         if ScreenManager.ausgewaehlt is not None:
             ScreenManager.ausgewaehlt.zeichneMarkiert()
 
     #TODO: Key callback falls nichts ausgewählt ist, dass die Auswahl mit der Tastatur zulösst und neue Events
     #erstellen lösst. Außerdem optional noch falls man +drückt das Event um die danach eingegebene Zeit verschiebt
-    @staticmethod
-    def veralteHintergrund():
-        from EventManager import EventManager as EM
-        from TimeManager import TimeManager as TM
-        EM.mittagspause.veralten()
-        for z in TM.zeiten:
-            z.veralte()

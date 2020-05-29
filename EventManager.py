@@ -210,7 +210,6 @@ class EventManager:
                 elif not istStartzeit and oevent.startzeit == event.endzeit:
                     event.eventDanach = oevent
                     oevent.eventDavor = event
-        event.veralten()
         event.zeichne()
     # Methode um Event in zwei kleinere Events zur Zeit zeit aufzuspalten
     @staticmethod
@@ -222,7 +221,6 @@ class EventManager:
         EventManager.verschiebeZeitNach(event, False, zeit)
         event2 = Event(event.endzeit, event.endzeit + deltaZeit)
         EventManager.addEvent(event2)
-        event.veralten()
         event.zeichne()
         return (event, event2)
     #findet event falls die Zeit zwischen inklusive Anfangszeit und exklusive Endzeit des EVents liegt

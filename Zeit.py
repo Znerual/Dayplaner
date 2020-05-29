@@ -35,7 +35,6 @@ class Zeit(Objekt):
         self.event = event
         self.text = f"{self.stunde:02}:{self.minute:02}"
         self.form = []
-        self.veraltet = False
         self.datum = datum
     def __str__(self):
         if self.event is None:
@@ -198,8 +197,6 @@ class Zeit(Objekt):
             self.form.append(SM.canvas.create_line(x1, y1, x2, y1, fill=Farbkonzept.vormittag_markiert()))
             self.form.append(SM.canvas.create_text(int((x2 - x1) / 2), y1, fill="Black",text=self.text))
         else:
-            if self.veraltet:
-                pass #TODO:lösche und zeichne komplett neu
             SM.canvas.coords(self.form[0], x1, y1, x2, y1)
             SM.canvas.coords(self.form[1], int((x2 - x1) / 2), y1)
             SM.canvas.itemconfig(self.form[0], fill=Farbkonzept.vormittag())
@@ -222,9 +219,9 @@ class Zeit(Objekt):
         self.text = ""
         ScreenManager.canvas.bind("<Key>", self.callbackVerschiebe)
         print("Fokusiere Zeit")
+
     def unfokusiere(self):
         from ScreenManager import ScreenManager
         ScreenManager.canvas.unbind("<Key>")
         self.aktualisiereText()
-    def veralte(self):
-        self.veraltet = True
+

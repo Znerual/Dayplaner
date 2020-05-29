@@ -14,7 +14,6 @@ class Event(Objekt):
         self.eventDavor = None
         self.eventDanach = None
         self.form = []
-        self.veraltet = False
         self.istPause = istPause
 
     def __str__(self):
@@ -24,11 +23,6 @@ class Event(Objekt):
         if self is None and other is None: return True
         if self is None or other is None: return False
         return self.endzeit == other.endzeit and self.startzeit == other.startzeit
-
-    def veralten(self):
-        self.veraltet = True
-        self.startzeit.veraltet = True
-        self.endzeit.veraltet = True
 
     def schneiden(self, other):
         if (self.endzeit > other.startzeit and self.startzeit < other.endzeit) or (
