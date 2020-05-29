@@ -241,6 +241,26 @@ class EventManager:
         return events
 
     @staticmethod
+    def findeKleinsteStartzeit():
+        if len(EventManager.events) == 0: return TimeManager.mittagspauseStart
+        minimum = EventManager.events[0].startzeit
+
+        for event in EventManager.events:
+            if event.startzeit < minimum:
+                minimum = event.startzeit
+        return minimum
+
+    @staticmethod
+    def findeGroessteEndzeit():
+        if len(EventManager.events) == 0: return TimeManager.mittagspauseEnde
+        maximum = EventManager.events[0].endzeit
+
+        for event in EventManager.events:
+            if event.startzeit > maximum:
+                maximum = event.endzeit
+        return maximum
+
+    @staticmethod
     def hatEvent(event):
         return event in EventManager.events
 

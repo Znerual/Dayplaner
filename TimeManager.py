@@ -9,8 +9,8 @@ class TimeManager:
     schlafenszeit = Zeit(23, 00)
     zeiten = (aufstehzeit, mittagspauseStart, mittagspauseEnde, schlafenszeit)
     null = Zeit(0, 0)
-    genauigkeit = Zeit(0,5)
-
+    genauigkeit = Zeit(0,10)
+    genauigkeitsfaktor = 60
     @staticmethod
     def findeZeit(zeit):
         for z in TimeManager.zeiten:
@@ -20,15 +20,22 @@ class TimeManager:
 
     @staticmethod
     def verschiebeZeit(zeit, nach):
-        if zeit == TimeManager.aufstehzeit:
-            if nach > TimeManager.mittagspauseStart: return None
-        elif zeit == TimeManager.schlafenszeit:
-            if nach < TimeManager.mittagspauseEnde: return None
-        elif zeit == TimeManager.mittagspauseStart:
-            if nach < TimeManager.aufstehzeit or nach > TimeManager.mittagspauseEnde: return None
+        from ScreenManager import ScreenManager
+        from EventManager import EventManager as EM
+
+        if zeit == TimeManager.mittagspauseStart:
+            EM.verschiebeZeitNach(EM.mittagspause, True, nach)
+            return
         elif zeit == TimeManager.mittagspauseEnde:
-            if nach < TimeManager.mittagspauseStart or nach > TimeManager.schlafenszeit: return None
+            EM.verschiebeZeitNach(EM.mittagspause, False, nach)
+            return
+
+        if zeit == TimeManager.aufstehzeit:
+            if nach > EM.findeKleinsteStartzeit(): return None
+        elif zeit == TimeManager.schlafenszeit:
+            if nach < EM.findeGroessteEndzeit(): return None
         zeit.stunde = nach.stunde
         zeit.minute = nach.minute
         zeit.text = nach.text
+        ScreenManager.zeichneHintergrund()
         return zeit

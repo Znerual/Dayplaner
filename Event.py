@@ -68,8 +68,6 @@ class Event(Objekt):
             self.form.append(SM.canvas.create_rectangle(x1, y1, x2, y2 ,fill=Farbkonzept.vormittag()))
             self.form.append(SM.canvas.create_text(int((x2 - x1) / 2), int(y1 + (y2-y1)/2), text=self.text))
         else:
-            if self.veraltet:
-                pass#TODO:lösche und zeichne komplett neu
             SM.canvas.coords(self.form[0], x1, y1, x2, y2)
             SM.canvas.coords(self.form[1], int((x2 - x1) / 2), int(y1 + (y2-y1)/2))
             SM.canvas.itemconfig(self.form[0], fill=Farbkonzept.vormittag())

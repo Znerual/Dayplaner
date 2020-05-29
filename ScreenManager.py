@@ -63,13 +63,17 @@ class ScreenManager:
         from TimeManager import TimeManager as TM
         from EventManager import EventManager as EM
 
+        #passe Mittagspause an
+        EM.mittagspause.startzeit.set(TM.mittagspauseStart)
+        EM.mittagspause.endzeit.set(TM.mittagspauseEnde)
         EM.mittagspause.zeichne()
 
         #zeichne wichtige Linien
         for zeit in TM.zeiten:
             zeit.zeichne()
 
-
+        #passe Genauigkeit an die neue Skalierung an
+        TM.genauigkeit.vonMinuten((TM.schlafenszeit - TM.aufstehzeit).zeitInMinuten() / TM.genauigkeitsfaktor)
     @staticmethod
     def run():
         ScreenManager.root.mainloop()
@@ -139,7 +143,7 @@ class ScreenManager:
         from EventManager import EventManager as EM
 
         #aktualisiere die Variablen
-        ScreenManager.screenHeight =  ScreenEvent.height #ScreenManager.root.winfo_height()
+        ScreenManager.screenHeight = ScreenEvent.height #ScreenManager.root.winfo_height()
         ScreenManager.screenWidth = ScreenEvent.width#ScreenManager.root.winfo_width()
         ScreenManager.canvasHeight = ScreenManager.screenHeight
         ScreenManager.canvasWidth = ScreenManager.screenWidth
