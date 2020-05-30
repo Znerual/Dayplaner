@@ -5,6 +5,8 @@ from Zeit import Zeit
 class EventManager:
     events = []
     mittagspause = Event(TimeManager.mittagspauseStart, TimeManager.mittagspauseEnde, False, "Mittagspause")
+    testEvent = Event(Zeit(10,00), TimeManager.mittagspauseStart, False, "testevent")
+    testNachmEvent = Event(Zeit(16,00),Zeit(18,30),False, "testNachm")
     eventLaenge = Zeit(1,30)
     pausenLaenge = Zeit(0,10)
     #Es hat passieren können das beim Verschieben zwei Elemente exakt übereinder ilegen und damit beide

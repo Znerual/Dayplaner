@@ -17,12 +17,12 @@ class TestScreenManager(unittest.TestCase):
         # canvas = Canvas(root, width=250, height=400)
         # canvas.pack() #beim rectangle(x1,y1,x2,y2) koo der linken oberen und rechten unteren ecke
 
-        recvm = SM.canvas.create_rectangle(50, 50, 200, 100, fill=Farbkonzept.vormittag())
-        recvmm = SM.canvas.create_rectangle(50, 100, 200, 150, fill=Farbkonzept.vormittag_markiert())
-        recmi = SM.canvas.create_rectangle(50, 150, 200, 200, fill=Farbkonzept.mittagspause())
-        recmim = SM.canvas.create_rectangle(50, 200, 200, 250, fill=Farbkonzept.mittagspause_markiert())
-        recnm = SM.canvas.create_rectangle(50, 250, 200, 300, fill=Farbkonzept.nachmittag())
-        recnmm = SM.canvas.create_rectangle(50, 300, 200, 350, fill=Farbkonzept.nachmittag_markiert())
+        #recvm = SM.canvas.create_rectangle(50, 50, 200, 100, fill=Farbkonzept.vormittag())
+        #recvmm = SM.canvas.create_rectangle(50, 100, 200, 150, fill=Farbkonzept.vormittag_markiert())
+        #recmi = SM.canvas.create_rectangle(50, 150, 200, 200, fill=Farbkonzept.mittagspause())
+        #recmim = SM.canvas.create_rectangle(50, 200, 200, 250, fill=Farbkonzept.mittagspause_markiert())
+        #recnm = SM.canvas.create_rectangle(50, 250, 200, 300, fill=Farbkonzept.nachmittag())
+        #recnmm = SM.canvas.create_rectangle(50, 300, 200, 350, fill=Farbkonzept.nachmittag_markiert())
         self.text = SM.canvas.create_text(100, 20, text="Position")
         SM.canvas.create_text(100,50, text=f"{SM.canvasHeight} vs {SM.screenHeight}")
         SM.canvas.bind("<Button-1>", self.callbackClick)
@@ -78,5 +78,7 @@ class TestScreenManager(unittest.TestCase):
 
         self.assertEqual(y1, lsg1)
         self.assertEqual(y2, lsg2)
+
+
 if __name__ == '__main__':
     unittest.main()
