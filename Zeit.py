@@ -32,10 +32,11 @@ class Zeit(Objekt):
     def __init__(self, stunde, minute, datum=date.today(),event=None):
         self.stunde = stunde
         self.minute = minute
+        self.datum = datum
         self.event = event
         self.text = f"{self.stunde:02}:{self.minute:02}"
         self.form = []
-        self.datum = datum
+        self.id = None
     def __str__(self):
         if self.event is None:
             return f"Zeit {self.stunde:02}:{self.minute:02} am {self.datum.strftime('%d.%m.%Y')}"

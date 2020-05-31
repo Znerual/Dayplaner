@@ -1,7 +1,7 @@
 from TimeManager import TimeManager
 from Event import Event
 from Zeit import Zeit
-
+from Db import Db
 class EventManager:
     events = []
     mittagspause = Event(TimeManager.mittagspauseStart, TimeManager.mittagspauseEnde, False, "Mittagspause")
@@ -73,12 +73,13 @@ class EventManager:
             return event
     @staticmethod
     def removeEvent(event):
+        if not Db.initialisiert: Db.init()
         # lösche die Verknüpfungen über Vorheriges Element und folgendes Element
         if event.eventDanach is not None:
             event.eventDanach.eventDavor = None
         if event.eventDavor is not None:
             event.eventDavor.eventDanach = None
-
+        Db.entferneEvent(Db.eventsConn, event)
         EventManager.events.remove(event)
 
     # Methode um Events zu verschieben
@@ -234,15 +235,10 @@ class EventManager:
         return (event, event2)
     #findet event falls die Zeit zwischen inklusive Anfangszeit und exklusive Endzeit des EVents liegt
     @staticmethod
-    def findeEvent(zeit, genauigkeit=None):
-        if genauigkeit is None:
-            for event in EventManager.events:
-                if event.startzeit <= zeit < event.endzeit:
-                    return event
-        else:
-            for event in EventManager.events:
-                if event.startzeit <= zeit + genauigkeit and zeit - genauigkeit < event.endzeit:
-                    return event
+    def findeEvent(zeit, genauigkeit=Zeit(0,0)):
+        for event in EventManager.events:
+            if event.startzeit <= zeit + genauigkeit and zeit - genauigkeit < event.endzeit:
+                return event
         return None
 
     #finde Events exklusive der Grenzen
@@ -297,8 +293,16 @@ class EventManager:
 
     @staticmethod
     def speichereEvents():
-        pass #TODO
+        if not Db.initialisiert: Db.init()
+        for event in EventManager.events:
+            if event.id is None:
+                event.id = Db.addEvent(Db.eventsConn, event)
+            else:
+                Db.updateEvent(Db.eventsConn, event)
 
     @staticmethod
     def ladeEvents():
-        pass #TODO
+        if not Db.initialisiert: Db.init()
+        events = Db.erhalteAlleEvents(Db.eventsConn)
+        if len(events) > 0:
+            EventManager.events = events
