@@ -40,25 +40,30 @@ class TimeManager:
         zeit.minute = nach.minute
         zeit.text = nach.text
         ScreenManager.zeichneHintergrund()
-        TimeManager.speichereZeiten()
+        #TimeManager.speichereZeiten()
         return zeit
 
     @staticmethod
     def ladeZeiten():
+        from EventManager import EventManager as EM
+        from Event import Event
         if not Db.initialisiert: Db.init()
-        zeiten = Db.erhalteAlleZeiten(Db.zeitenConn)
+        zeiten = Db.erhalteAlleZeiten(Db.conn)
         if len(zeiten) > 0:
             TimeManager.zeiten = zeiten
             TimeManager.aufstehzeit = TimeManager.zeiten[0]
             TimeManager.mittagspauseStart = TimeManager.zeiten[1]
             TimeManager.mittagspauseEnde =TimeManager.zeiten[2]
             TimeManager.schlafenszeit = TimeManager.zeiten[3]
+            EM.mittagspause = Event(TimeManager.mittagspauseStart, TimeManager.mittagspauseEnde)
 
     @staticmethod
     def speichereZeiten():
         if not Db.initialisiert: Db.init()
         for zeit in TimeManager.zeiten:
             if zeit.id is None:
-                zeit.id = Db.addZeit(Db.zeitenConn, zeit)
+                zeit.id = Db.addZeit(Db.conn, zeit)
             else:
-                Db.updateZeit(Db.zeitenConn, zeit)
+                Db.updateZeit(Db.conn, zeit)
+
+        Db.conn.commit()

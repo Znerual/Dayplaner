@@ -6,10 +6,9 @@ from datetime import date
 
 class Db:
     initialisiert = False
-    eventsDb = ""
-    zeitenDb = ""
-    eventsConn = None
-    zeitenConn = None
+    fileDb = ""
+    conn = None
+
     @staticmethod
     def aktuellesVerzeichnis():
         filename = getframeinfo(currentframe()).filename
@@ -19,11 +18,10 @@ class Db:
     @staticmethod
     def init():
         Db.initialisiert = True
-        Db.eventsDb = Db.aktuellesVerzeichnis() / "events.dat"
-        Db.zeitenDb = Db.aktuellesVerzeichnis() / "zeiten.dat"
+        Db.Db = Db.aktuellesVerzeichnis() / "saved.dat"
 
-        Db.eventsConn = Db.erstelleVerbindung(Db.eventsDb)
-        Db.zeitenConn = Db.erstelleVerbindung(Db.zeitenDb)
+
+        Db.conn = Db.erstelleVerbindung(Db.Db)
 
         sql_create_events_table = """ CREATE TABLE IF NOT EXISTS events (
                                                 id integer PRIMARY KEY,
@@ -40,8 +38,8 @@ class Db:
                                         dateOrdinal integer
                                     );"""
 
-        Db.erstelleTabelle(Db.eventsConn, sql_create_events_table)
-        Db.erstelleTabelle(Db.zeitenConn, sql_create_zeiten_table)
+        Db.erstelleTabelle(Db.conn, sql_create_events_table)
+        Db.erstelleTabelle(Db.conn, sql_create_zeiten_table)
 
     @staticmethod
     def erstelleVerbindung(db_file):
@@ -81,7 +79,7 @@ class Db:
         state = 0
         if event.istPause: state = 1
         if event == EM.mittagspause: state = 2
-        cur.execute(sql, (event.text, event.startzeit.zeitInMinuten(), event.endzeit.zeitInMinuten(), event.datum.toordinal(), state))
+        cur.execute(sql, (event.text, event.startzeit.zeitInMinuten(), event.endzeit.zeitInMinuten(), event.startzeit.datum.toordinal(), state))
         return cur.lastrowid
 
     @staticmethod
@@ -112,7 +110,7 @@ class Db:
         if event.istPause: state = 1
         if event == EM.mittagspause: state = 2
         cur = conn.cursor()
-        cur.execute(sql, (event.text, event.startzeit.zeitInMinuten(), event.endzeit.zeitInMinuten(), event.datum.toordinal(), state, event.id))
+        cur.execute(sql, (event.text, event.startzeit.zeitInMinuten(), event.endzeit.zeitInMinuten(), event.startzeit.datum.toordinal(), state, event.id))
         conn.commit()
 
     @staticmethod

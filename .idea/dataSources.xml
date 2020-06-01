@@ -13,5 +13,11 @@
       <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
       <jdbc-url>jdbc:sqlite:D:\Code\Python\Dayplaner\zeiten.dat</jdbc-url>
     </data-source>
+    <data-source source="LOCAL" name="saved" uuid="b3f5b55a-8c59-4900-b0bd-427b2a8c89c1">
+      <driver-ref>sqlite.xerial</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
+      <jdbc-url>jdbc:sqlite:D:\Code\Python\Dayplaner\saved.dat</jdbc-url>
+    </data-source>
   </component>
 </project>

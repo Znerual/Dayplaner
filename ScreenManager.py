@@ -93,7 +93,7 @@ class ScreenManager:
         pixel = (clickEvent.x, clickEvent.y) # oder event.x für absolute SCeen position
         # x_root ist realtiv zum canvas
 
-        zeit = ScreenManager.pixelZuZeit(pixel[1]).runde(TimeManager.genauigkeit)  # ausgewählte Zeit, gerundet
+        zeit = ScreenManager.pixelZuZeit(pixel[1])  # ausgewählte Zeit, gerundet
         gefundeneZeit = TimeManager.findeZeit(zeit)
         if gefundeneZeit is not None:
             gefundeneZeit.zeichneMarkiert()
@@ -102,6 +102,7 @@ class ScreenManager:
             return
         event = EventManager.findeEvent(zeit, TimeManager.genauigkeit)
         if event is None:
+            zeit = zeit.runde()
             if TimeManager.aufstehzeit <= zeit < TimeManager.schlafenszeit:
                 neuesEvent = EventManager.addEvent(Event(zeit, zeit + EventManager.eventLaenge))
                 ScreenManager.ausgewaehlt = neuesEvent

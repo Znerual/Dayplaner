@@ -79,7 +79,7 @@ class EventManager:
             event.eventDanach.eventDavor = None
         if event.eventDavor is not None:
             event.eventDavor.eventDanach = None
-        Db.entferneEvent(Db.eventsConn, event)
+        Db.entferneEvent(Db.conn, event)
         EventManager.events.remove(event)
 
     # Methode um Events zu verschieben
@@ -296,13 +296,16 @@ class EventManager:
         if not Db.initialisiert: Db.init()
         for event in EventManager.events:
             if event.id is None:
-                event.id = Db.addEvent(Db.eventsConn, event)
+                event.id = Db.addEvent(Db.conn, event)
             else:
-                Db.updateEvent(Db.eventsConn, event)
+                Db.updateEvent(Db.conn, event)
+        Db.conn.commit()
 
     @staticmethod
     def ladeEvents():
         if not Db.initialisiert: Db.init()
-        events = Db.erhalteAlleEvents(Db.eventsConn)
+        events = Db.erhalteAlleEvents(Db.conn)
         if len(events) > 0:
             EventManager.events = events
+            for event in EventManager.events:
+                event.zeichne()

@@ -126,11 +126,13 @@ class Zeit(Objekt):
 
     def circa(self, zeit):
         from TimeManager import TimeManager as TM
-        if self.datum == zeit.datum and abs(self.stunde - zeit.stunde) <= TM.genauigkeit.stunde and abs(self.minute - zeit.minute) <= TM.genauigkeit.minute:
+        if self.datum == zeit.datum and (TM.null <= (self - zeit) <= TM.genauigkeit or TM.null <= (zeit - self) <= TM.genauigkeit):
             return True
         return False
 
-    def runde(self, genauigkeit):
+    def runde(self, genauigkeit=None):
+        from TimeManager import TimeManager as TM
+        if genauigkeit is None: genauigkeit = TM.genauigkeit
         mod = self.zeitInMinuten() % genauigkeit.zeitInMinuten()
         if mod == 0:
             return self
