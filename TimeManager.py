@@ -4,7 +4,7 @@ from Db import Db
 class TimeManager:
 
     aufstehzeit = Zeit(8, 0)
-
+    aktuellesDatum = Zeit(0,0)
     #TODO: Mittagspause hier herauslöschen und nur über EventManager.mittagspause verändern
     mittagspauseStart = Zeit(12, 30)
     mittagspauseEnde = Zeit(13, 30)
@@ -40,6 +40,7 @@ class TimeManager:
         zeit.minute = nach.minute
         zeit.text = nach.text
         ScreenManager.zeichneHintergrund()
+        ScreenManager.zeichneEventsNeu()
         #TimeManager.speichereZeiten()
         return zeit
 

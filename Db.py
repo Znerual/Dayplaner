@@ -3,6 +3,7 @@ import pathlib
 import sqlite3
 from sqlite3 import Error
 from datetime import date
+from datetime import date
 
 class Db:
     initialisiert = False
@@ -34,8 +35,7 @@ class Db:
 
         sql_create_zeiten_table = """CREATE TABLE IF NOT EXISTS zeiten (
                                         id integer PRIMARY KEY,
-                                        zeitMin integer,
-                                        dateOrdinal integer
+                                        zeitMin integer
                                     );"""
 
         Db.erstelleTabelle(Db.conn, sql_create_events_table)
@@ -84,10 +84,10 @@ class Db:
 
     @staticmethod
     def addZeit(conn, zeit):
-        sql = ''' INSERT INTO zeiten(zeitMin, dateOrdinal)
-                              VALUES(?,?) '''
+        sql = ''' INSERT INTO zeiten(zeitMin)
+                              VALUES(?) '''
         cur = conn.cursor()
-        cur.execute(sql, (zeit.zeitInMinuten(), zeit.datum.toordinal()))
+        cur.execute(sql, (zeit.zeitInMinuten(),))
         return cur.lastrowid
 
     @staticmethod
@@ -123,11 +123,10 @@ class Db:
         :return: project id
         """
         sql = ''' UPDATE zeiten
-                  SET zeitMin = ? ,
-                      dateOrdinal = ?
+                  SET zeitMin = ?
                   WHERE id = ?'''
         cur = conn.cursor()
-        cur.execute(sql, (zeit.zeitInMinuten(), zeit.datum.toordinal(), zeit.id))
+        cur.execute(sql, (zeit.zeitInMinuten(), zeit.id))
         conn.commit()
 
     @staticmethod
@@ -164,6 +163,39 @@ class Db:
         return events
 
     @staticmethod
+    def erhalteAlleHeutigenEvents(conn):
+        from Event import Event
+        from Zeit import Zeit
+        from EventManager import EventManager as EM
+        """
+        Query all rows in the tasks table
+        :param conn: the Connection object
+        :return:
+        """
+        heute = date.today().toordinal()
+        cur = conn.cursor()
+        cur.execute('''SELECT * FROM events WHERE dateOrdinal=?''',(heute,))
+
+        rows = cur.fetchall()
+        events = []
+
+        for row in rows:
+            zeitStart = Zeit(0, 0)
+            zeitEnde = Zeit(0, 0)
+            zeitStart.vonMinuten(row[2])
+            zeitEnde.vonMinuten(row[3])
+            event = Event(zeitStart, zeitEnde)
+            event.id = row[0]
+            event.text = row[1]
+            event.startzeit.datum = date.fromordinal(row[4])
+            event.endzeit.datum = event.startzeit.datum
+            if row[5] == 1: event.istPause = True
+            if row[5] == 2:
+                EM.mittagspause = event
+            else:
+                events.append(event)
+        return events
+    @staticmethod
     def erhalteAlleZeiten(conn):
         from Zeit import Zeit
         """
@@ -180,7 +212,6 @@ class Db:
             zeit = Zeit(0, 0)
             zeit.id = row[0]
             zeit.vonMinuten(row[1])
-            zeit.datum.fromordinal(row[2])
             zeiten.append(zeit)
         return zeiten
 

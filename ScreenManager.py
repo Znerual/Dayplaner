@@ -62,6 +62,7 @@ class ScreenManager:
     def zeichneHintergrund():
         from TimeManager import TimeManager as TM
         from EventManager import EventManager as EM
+        from Zeit import Zeit
 
         #passe Mittagspause an
         EM.mittagspause.startzeit.set(TM.mittagspauseStart)
@@ -72,8 +73,9 @@ class ScreenManager:
         for zeit in TM.zeiten:
             zeit.zeichne()
 
-        #passe Genauigkeit an die neue Skalierung an
+        #passe Genauigkeit an die neue Skalierung an, runde danach auf schöne 5 Min Intervalle
         TM.genauigkeit.vonMinuten((TM.schlafenszeit - TM.aufstehzeit).zeitInMinuten() / TM.genauigkeitsfaktor)
+        TM.genauigkeit = TM.genauigkeit.runde(Zeit(0,5))
     @staticmethod
     def run():
         ScreenManager.root.mainloop()
@@ -103,6 +105,8 @@ class ScreenManager:
         event = EventManager.findeEvent(zeit, TimeManager.genauigkeit)
         if event is None:
             zeit = zeit.runde()
+            #ändere das Datum des neuen Events auf das Datum von akutellesDatum im TimeManager
+            zeit.datum = TimeManager.aktuellesDatum.datum
             if TimeManager.aufstehzeit <= zeit < TimeManager.schlafenszeit:
                 neuesEvent = EventManager.addEvent(Event(zeit, zeit + EventManager.eventLaenge))
                 ScreenManager.ausgewaehlt = neuesEvent
@@ -142,6 +146,14 @@ class ScreenManager:
             ScreenManager.ausgewaehlt.fokusiere()
 
     @staticmethod
+    def zeichneEventsNeu():
+        from EventManager import EventManager as EM
+        for event in EM.events:
+            event.zeichne()
+        if ScreenManager.ausgewaehlt is not None:
+            ScreenManager.ausgewaehlt.zeichneMarkiert()
+
+    @staticmethod
     def callbackScreenSizeChanged(ScreenEvent):
         from EventManager import EventManager as EM
 
@@ -158,10 +170,7 @@ class ScreenManager:
         ScreenManager.zeichneHintergrund()
 
         #zeichne die Events neu
-        for event in EM.events:
-            event.zeichne()
-        if ScreenManager.ausgewaehlt is not None:
-            ScreenManager.ausgewaehlt.zeichneMarkiert()
+        ScreenManager.zeichneEventsNeu()
 
     #TODO: Key callback falls nichts ausgewählt ist, dass die Auswahl mit der Tastatur zulösst und neue Events
     #erstellen lösst. Außerdem optional noch falls man +drückt das Event um die danach eingegebene Zeit verschiebt

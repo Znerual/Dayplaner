@@ -304,7 +304,7 @@ class EventManager:
     @staticmethod
     def ladeEvents():
         if not Db.initialisiert: Db.init()
-        events = Db.erhalteAlleEvents(Db.conn)
+        events = Db.erhalteAlleHeutigenEvents(Db.conn)
         if len(events) > 0:
             EventManager.events = events
             for event in EventManager.events:
