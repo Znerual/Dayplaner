@@ -220,11 +220,13 @@ class Zeit(Objekt):
     def fokusiere(self):
         from ScreenManager import ScreenManager
         self.text = ""
+        ScreenManager.canvas.unbind("<Key>")
         ScreenManager.canvas.bind("<Key>", self.callbackVerschiebe)
         print("Fokusiere Zeit")
 
     def unfokusiere(self):
         from ScreenManager import ScreenManager
         ScreenManager.canvas.unbind("<Key>")
+        ScreenManager.canvas.bind("<Key>", ScreenManager.keyInput)
         self.aktualisiereText()
 

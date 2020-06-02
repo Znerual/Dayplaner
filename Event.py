@@ -93,8 +93,10 @@ class Event(Objekt):
             ScreenManager.canvas.delete(form)
     def fokusiere(self):
         from ScreenManager import ScreenManager
+        ScreenManager.canvas.unbind("<Key>")
         ScreenManager.canvas.bind("<Key>", self.callbackText)
 
     def unfokusiere(self):
         from ScreenManager import ScreenManager
         ScreenManager.canvas.unbind("<Key>")
+        ScreenManager.canvas.bind("<Key>", ScreenManager.keyInput)

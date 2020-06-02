@@ -12,6 +12,8 @@ class ScreenManager:
     
     ausgewaehlt = None
 
+    inputAnzeige = None
+    inputText = ""
 
 
     @staticmethod
@@ -57,7 +59,8 @@ class ScreenManager:
         ScreenManager.canvas.focus_set()
         ScreenManager.canvasWidth = ScreenManager.canvas.winfo_width()
         ScreenManager.canvasHeight = ScreenManager.canvas.winfo_height()
-
+        ScreenManager.inputAnzeige = ScreenManager.canvas.create_text(20, int(ScreenManager.canvasHeight - 20), text="Input:", anchor=SW)
+        ScreenManager.canvas.bind("<Key>", ScreenManager.keyInput)
     @staticmethod
     def zeichneHintergrund():
         from TimeManager import TimeManager as TM
@@ -76,6 +79,9 @@ class ScreenManager:
         #passe Genauigkeit an die neue Skalierung an, runde danach auf schöne 5 Min Intervalle
         TM.genauigkeit.vonMinuten((TM.schlafenszeit - TM.aufstehzeit).zeitInMinuten() / TM.genauigkeitsfaktor)
         TM.genauigkeit = TM.genauigkeit.runde(Zeit(0,5))
+
+        ScreenManager.canvas.coords(ScreenManager.inputAnzeige,20, int(ScreenManager.canvasHeight - 20))
+
     @staticmethod
     def run():
         ScreenManager.root.mainloop()
@@ -144,6 +150,19 @@ class ScreenManager:
             ScreenManager.ausgewaehlt = pause.endzeit
             ScreenManager.ausgewaehlt.zeichneMarkiert()
             ScreenManager.ausgewaehlt.fokusiere()
+
+    @staticmethod
+    def keyInput(keyEvent):
+        if keyEvent.keysym == "Return":
+            #Execute Input
+            pass
+        elif keyEvent.keysym == "BackSpace":
+            ScreenManager.inputText = ScreenManager.inputText[:-1]
+        elif keyEvent.keysym == "Delete":
+            pass
+        else:
+            ScreenManager.inputText += keyEvent.char
+        ScreenManager.canvas.itemconfig(ScreenManager.inputAnzeige, text=f"Input: {ScreenManager.inputText}")
 
     @staticmethod
     def zeichneEventsNeu():
