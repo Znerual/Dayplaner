@@ -159,9 +159,11 @@ class Zeit(Objekt):
         self.datum += timedelta(days=-1)
         return self
 
-    def circa(self, zeit):
+    def circa(self, zeit, genauigkeit = None):
         from TimeManager import TimeManager as TM
-        if (TM.null <= (self - zeit) <= TM.genauigkeit or TM.null <= (zeit - self) <= TM.genauigkeit):
+        if genauigkeit is None:
+            genauigkeit = TM.genauigkeit
+        if (TM.null <= (self - zeit) <= genauigkeit or TM.null <= (zeit - self) <= genauigkeit):
             return True
         return False
 

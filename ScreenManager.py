@@ -92,18 +92,23 @@ class ScreenManager:
         ScreenManager.root.mainloop()
 
     @staticmethod
-    def select(zeit):
+    def select(zeit, exakt=False):
         from TimeManager import TimeManager
         from EventManager import EventManager
         from Event import Event
+        from Zeit import Zeit
 
-        gefundeneZeit = TimeManager.findeZeit(zeit)
+        if exakt:
+            genauigkeit = Zeit(0,0,None)
+        else:
+            genauigkeit = TimeManager.genauigkeit
+        gefundeneZeit = TimeManager.findeZeit(zeit, genauigkeit)
         if gefundeneZeit is not None:
             gefundeneZeit.zeichneMarkiert()
             ScreenManager.ausgewaehlt = gefundeneZeit
             ScreenManager.ausgewaehlt.fokusiere()
             return
-        event = EventManager.findeEvent(zeit, TimeManager.genauigkeit)
+        event = EventManager.findeEvent(zeit, genauigkeit)
         if event is None:
             zeit = zeit.runde()
             # ändere das Datum des neuen Events auf das Datum von akutellesDatum im TimeManager
@@ -114,9 +119,9 @@ class ScreenManager:
             else:
                 return
         else:
-            if zeit.circa(event.startzeit):
+            if zeit.circa(event.startzeit, genauigkeit):
                 ScreenManager.ausgewaehlt = event.startzeit
-            elif zeit.circa(event.endzeit):
+            elif zeit.circa(event.endzeit, genauigkeit):
                 ScreenManager.ausgewaehlt = event.endzeit
             else:
                 ScreenManager.ausgewaehlt = event
@@ -135,7 +140,7 @@ class ScreenManager:
             ScreenManager.ausgewaehlt.unfokusiere()
 
         pixel = (clickEvent.x, clickEvent.y)
-        zeit = ScreenManager.pixelZuZeit(pixel[1])  # ausgewählte Zeit, gerundet
+        zeit = ScreenManager.pixelZuZeit(pixel[1]).runde(TimeManager.genauigkeit)  # ausgewählte Zeit, gerundet
         ScreenManager.select(zeit)
 
 
@@ -176,7 +181,7 @@ class ScreenManager:
             #reset the input Text
             ScreenManager.inputText = ""
             if zeit is not None:
-                ScreenManager.select(zeit)
+                ScreenManager.select(zeit, True)
                 zeit.datum = TimeManager.aktuellesDatum.datum
             elif zeit1 is not None and zeit2 is not None:
                 zeit1.datum = zeit2.datum = TimeManager.aktuellesDatum.datum

@@ -14,9 +14,9 @@ class TimeManager:
     genauigkeit = Zeit(0,10, None)
     genauigkeitsfaktor = 60
     @staticmethod
-    def findeZeit(zeit):
+    def findeZeit(zeit, genauigkeit=None):
         for z in TimeManager.zeiten:
-            if z.circa(zeit):
+            if z.circa(zeit, genauigkeit):
                 return z
         return None
 
