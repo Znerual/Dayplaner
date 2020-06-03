@@ -181,18 +181,6 @@ class Zeit(Objekt):
                 self.form.append(SM.canvas.create_text(SM.canvasWidth-xVerschiebung, y1 - yVerschiebung, text=self.text, font=("BellMT", 8)))
             #elif what happended
         else:
-            if self.veraltet:
-                self.form.clear()
-                if self.event is None:  # achtung form kann jetzt 2 oder 3 einträge haben
-                    self.form.append(SM.canvas.create_line(x1, y1, x_mitteStart, y1, fill=Farbkonzept.Linien()))
-                    self.form.append(SM.canvas.create_line(x_mitteEnde, y1, x2, y1, fill=Farbkonzept.Linien()))
-                    self.form.append(SM.canvas.create_text(SM.canvasWidth / 2, y1, text=self.text, font=("BellMT", 8)))
-                elif self.event.startzeit == self:
-                    self.form.append(SM.canvas.create_line(x1, y1, x2, y1, fill=Farbkonzept.Linien()))
-                    self.form.append(SM.canvas.create_text(xVerschiebung, y1 + yVerschiebung, text=self.text, font=("BellMT", 8)))
-                elif self.event.endzeit == self:
-                    self.form.append(SM.canvas.create_line(x1, y1, x2, y1, fill=Farbkonzept.Linien()))
-                    self.form.append(SM.canvas.create_text(SM.canvasWidth-xVerschiebung, y1 - yVerschiebung, text=self.text, font=("BellMT", 8)))
             if self.event is None:
                 SM.canvas.coords(self.form[0], x1, y1, x_mitteStart, y1)
                 SM.canvas.coords(self.form[1], x_mitteEnde, y1, x2,y1)

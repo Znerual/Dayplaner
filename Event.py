@@ -72,35 +72,24 @@ class Event(Objekt):
         y2 = SM.zeitZuPixel(self.endzeit)
 
         if len(self.form) == 0:
-            if self.endzeit.inMinuten() <= TM.mittagspauseStart.inMinuten():
+            if self.endzeit <= TM.mittagspauseStart:
                 self.form.append(SM.canvas.create_rectangle(x1, y1, x2, y2 ,fill=Farbkonzept.vormittag(), outline=''))
-            if self.startzeit.inMinuten() >= TM.mittagspauseEnde.inMinuten():
+            if self.startzeit >= TM.mittagspauseEnde:
                 self.form.append(SM.canvas.create_rectangle(x1, y1, x2, y2, fill=Farbkonzept.nachmittag(), outline=''))
-            if self.startzeit.inMinuten() >= TM.mittagspauseStart.inMinuten() and self.endzeit.inMinuten() <=TM.mittagspauseEnde.inMinuten():
+            if self.startzeit >= TM.mittagspauseStart and self.endzeit <=TM.mittagspauseEnde:
                 self.form.append(SM.canvas.create_rectangle(x1, y1, x2, y2 ,fill=Farbkonzept.mittagspause(),outline=''))
             self.form.append(SM.canvas.create_text(SM.canvasWidth/2, int(y1 + (y2 - y1) / 2), text=self.text, font=("BellMT",10)))
 
         else:
-            if self.veraltet:
-                self.form.clear()
-                if self.endzeit.inMinuten() <= TM.mittagspauseStart.inMinuten():
-                    self.form.append(SM.canvas.create_rectangle(x1, y1, x2, y2, fill=Farbkonzept.vormittag(),outline=''))
-                elif self.startzeit.inMinuten() >= TM.mittagspauseEnde.inMinuten():
-                    self.form.append(SM.canvas.create_rectangle(x1, y1, x2, y2, fill=Farbkonzept.nachmittag(),outline=''))
-                elif (self.startzeit.inMinuten() >= TM.mittagspauseStart.inMinuten() and self.endzeit.inMinuten(
-                        ) <= TM.mittagspauseEnde.inMinuten()):
-                    self.form.append(SM.canvas.create_rectangle(x1, y1, x2, y2, fill=Farbkonzept.mittagspause(),outline=''))
-                self.form.append(SM.canvas.create_text(SM.canvasWidth/2, int(y1 + (y2 - y1) / 2), text=self.text,font=("BellMT",10)))
-            SM.canvas.coords(self.form[0], x1, y1, x2, y2)#hier sind wir im es existiert und ist nicht veraltet branch
+            SM.canvas.coords(self.form[0], x1, y1, x2, y2)
             SM.canvas.coords(self.form[1], SM.canvasWidth/2, int(y1 + (y2-y1)/2))
-            if self.endzeit.inMinuten() <= TM.mittagspauseStart.inMinuten():
+            if self.endzeit <= TM.mittagspauseStart:
                 SM.canvas.itemconfig(self.form[0], fill=Farbkonzept.vormittag())
                 SM.canvas.itemconfig(self.form[1], text=self.text)#fill=Farbkonzept.vormittag_markiert()
-            elif self.startzeit.inMinuten() >= TM.mittagspauseEnde.inMinuten():
+            elif self.startzeit >= TM.mittagspauseEnde:
                 SM.canvas.itemconfig(self.form[0], fill=Farbkonzept.nachmittag())
                 SM.canvas.itemconfig(self.form[1], text=self.text)
-            elif (self.startzeit.inMinuten() >= TM.mittagspauseStart.inMinuten() and self.endzeit.inMinuten(
-                    ) <= TM.mittagspauseEnde.inMinuten()):
+            elif self.startzeit >= TM.mittagspauseStart and self.endzeit <= TM.mittagspauseEnde:
                 SM.canvas.itemconfig(self.form[0], fill=Farbkonzept.mittagspause())
                 SM.canvas.itemconfig(self.form[1], text=self.text)
 

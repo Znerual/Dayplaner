@@ -64,8 +64,6 @@ class ScreenManager:
         from EventManager import EventManager as EM
 
         EM.mittagspause.zeichne()
-        EM.testEvent.zeichne()
-        EM.testNachmEvent.zeichne()
 
         #zeichne wichtige Linien
         for zeit in TM.zeiten:
