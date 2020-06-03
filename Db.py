@@ -163,7 +163,7 @@ class Db:
         return events
 
     @staticmethod
-    def erhalteAlleHeutigenEvents(conn):
+    def erhalteAlleEventsAm(conn, datum=date.today()):
         from Event import Event
         from Zeit import Zeit
         from EventManager import EventManager as EM
@@ -172,9 +172,9 @@ class Db:
         :param conn: the Connection object
         :return:
         """
-        heute = date.today().toordinal()
+        datum = datum.toordinal()
         cur = conn.cursor()
-        cur.execute('''SELECT * FROM events WHERE dateOrdinal=?''',(heute,))
+        cur.execute('''SELECT * FROM events WHERE dateOrdinal=?''',(datum,))
 
         rows = cur.fetchall()
         events = []

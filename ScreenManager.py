@@ -15,6 +15,7 @@ class ScreenManager:
     inputAnzeige = None
     inputText = ""
 
+    datumAnzeige = None
 
     @staticmethod
     def zeitZuPixel(zeit):
@@ -32,7 +33,7 @@ class ScreenManager:
     def pixelZuZeit(y):
         from TimeManager import TimeManager
         from Zeit import Zeit
-        zeit = Zeit(0, 0)
+        zeit = Zeit(0, 0, TimeManager.aktuellesDatum.datum)
 
         zeitspannePix = ScreenManager.canvasHeight / 5 * 4 #nutzbarer Bereich
         aufstehLiniePix = ScreenManager.canvasHeight / 10
@@ -44,6 +45,7 @@ class ScreenManager:
   
     @staticmethod
     def init():
+        from TimeManager import TimeManager
         ScreenManager.root = Tk()
         ScreenManager.root.title("Tagesplaner")
         ScreenManager.screenWidth = int(ScreenManager.root.winfo_screenwidth() / 3)
@@ -60,6 +62,7 @@ class ScreenManager:
         ScreenManager.canvasWidth = ScreenManager.canvas.winfo_width()
         ScreenManager.canvasHeight = ScreenManager.canvas.winfo_height()
         ScreenManager.inputAnzeige = ScreenManager.canvas.create_text(20, int(ScreenManager.canvasHeight - 20), text="Input:", anchor=SW)
+        ScreenManager.datumAnzeige = ScreenManager.canvas.create_text(ScreenManager.canvasWidth/2, 20, text=TimeManager.aktuellesDatum.erhalteDatumLang())
         ScreenManager.canvas.bind("<Key>", ScreenManager.keyInput)
     @staticmethod
     def zeichneHintergrund():
@@ -78,30 +81,22 @@ class ScreenManager:
 
         #passe Genauigkeit an die neue Skalierung an, runde danach auf schöne 5 Min Intervalle
         TM.genauigkeit.vonMinuten((TM.schlafenszeit - TM.aufstehzeit).zeitInMinuten() / TM.genauigkeitsfaktor)
-        TM.genauigkeit = TM.genauigkeit.runde(Zeit(0,5))
+        TM.genauigkeit = TM.genauigkeit.runde(Zeit(0,5, None))
 
+        #Inputanzeige und Datumanzeige korrekt verschieben
         ScreenManager.canvas.coords(ScreenManager.inputAnzeige,20, int(ScreenManager.canvasHeight - 20))
+        ScreenManager.canvas.coords(ScreenManager.datumAnzeige,int(ScreenManager.canvasWidth/2), 20,)
 
     @staticmethod
     def run():
         ScreenManager.root.mainloop()
 
     @staticmethod
-    def callbackLeftClick(clickEvent):
-        from EventManager import EventManager
+    def select(zeit):
         from TimeManager import TimeManager
+        from EventManager import EventManager
         from Event import Event
 
-        #TODO: Problem wenn <Key> Callback auf Text oder Zeit aktiviert ist und dann ein anderes Objekt ausgewählt wird
-
-        if ScreenManager.ausgewaehlt is not None:  # auswahl für altes Element aufheben
-            ScreenManager.ausgewaehlt.zeichne() #damit es neu, ohne Markierung gezeichnet wird
-            ScreenManager.ausgewaehlt.unfokusiere()
-
-        pixel = (clickEvent.x, clickEvent.y) # oder event.x für absolute SCeen position
-        # x_root ist realtiv zum canvas
-
-        zeit = ScreenManager.pixelZuZeit(pixel[1])  # ausgewählte Zeit, gerundet
         gefundeneZeit = TimeManager.findeZeit(zeit)
         if gefundeneZeit is not None:
             gefundeneZeit.zeichneMarkiert()
@@ -111,8 +106,8 @@ class ScreenManager:
         event = EventManager.findeEvent(zeit, TimeManager.genauigkeit)
         if event is None:
             zeit = zeit.runde()
-            #ändere das Datum des neuen Events auf das Datum von akutellesDatum im TimeManager
-            zeit.datum = TimeManager.aktuellesDatum.datum
+            # ändere das Datum des neuen Events auf das Datum von akutellesDatum im TimeManager
+            #zeit.datum = TimeManager.aktuellesDatum.datum
             if TimeManager.aufstehzeit <= zeit < TimeManager.schlafenszeit:
                 neuesEvent = EventManager.addEvent(Event(zeit, zeit + EventManager.eventLaenge))
                 ScreenManager.ausgewaehlt = neuesEvent
@@ -125,9 +120,24 @@ class ScreenManager:
                 ScreenManager.ausgewaehlt = event.endzeit
             else:
                 ScreenManager.ausgewaehlt = event
-
         ScreenManager.ausgewaehlt.zeichneMarkiert()
         ScreenManager.ausgewaehlt.fokusiere()
+    @staticmethod
+    def callbackLeftClick(clickEvent):
+        from EventManager import EventManager
+        from TimeManager import TimeManager
+        from Event import Event
+
+        #TODO: Problem wenn <Key> Callback auf Text oder Zeit aktiviert ist und dann ein anderes Objekt ausgewählt wird
+
+        if ScreenManager.ausgewaehlt is not None:  # auswahl für altes Element aufheben
+            ScreenManager.ausgewaehlt.zeichne() #damit es neu, ohne Markierung gezeichnet wird
+            ScreenManager.ausgewaehlt.unfokusiere()
+
+        pixel = (clickEvent.x, clickEvent.y)
+        zeit = ScreenManager.pixelZuZeit(pixel[1])  # ausgewählte Zeit, gerundet
+        ScreenManager.select(zeit)
+
 
     @staticmethod
     def callbackRightClick(clickEvent):
@@ -153,13 +163,46 @@ class ScreenManager:
 
     @staticmethod
     def keyInput(keyEvent):
+        from Zeit import Zeit
+        from TimeManager import TimeManager
+        from EventManager import EventManager
+        from Event import Event
+
         if keyEvent.keysym == "Return":
-            #Execute Input
-            pass
+            #Parse different input
+            zeit = Zeit.fromString(ScreenManager.inputText)
+            zeit1, zeit2 = Zeit.intervalFromString(ScreenManager.inputText)
+            zeit1.datum = zeit2.datum = zeit.datum = TimeManager.aktuellesDatum.datum
+
+            #reset the input Text
+            ScreenManager.inputText = ""
+            if zeit is not None:
+                ScreenManager.select(zeit)
+            elif zeit1 is not None and zeit2 is not None:
+                if (TimeManager.aufstehzeit <= zeit1 < TimeManager.mittagspauseStart and zeit1 < zeit2 <= TimeManager.mittagspauseStart ) or (TimeManager.mittagspauseEnde <= zeit1 < TimeManager.schlafenszeit and zeit1 < zeit2 <= TimeManager.schlafenszeit):
+                    neuesEvent = EventManager.addEvent(Event(zeit1, zeit2))
+                    ScreenManager.ausgewaehlt = neuesEvent
+                    ScreenManager.ausgewaehlt.zeichneMarkiert()
+                    ScreenManager.ausgewaehlt.fokusiere()
+                else:
+                    ScreenManager.inputText = "Invalid Input for Interval"
+
         elif keyEvent.keysym == "BackSpace":
             ScreenManager.inputText = ScreenManager.inputText[:-1]
         elif keyEvent.keysym == "Delete":
             pass
+        elif keyEvent.keysym == "Right":
+            TimeManager.aktuellesDatum.verschiebeAufMorgen()
+            for event in EventManager.events:
+                event.verstecke()
+            EventManager.ladeEvents()
+            ScreenManager.canvas.itemconfig(ScreenManager.datumAnzeige, text=TimeManager.aktuellesDatum.erhalteDatumLang())
+        elif keyEvent.keysym == "Left":
+            TimeManager.aktuellesDatum.verschiebeAufGestern()
+            for event in EventManager.events:
+                event.verstecke()
+            EventManager.ladeEvents()
+            ScreenManager.canvas.itemconfig(ScreenManager.datumAnzeige, text=TimeManager.aktuellesDatum.erhalteDatumLang())
         else:
             ScreenManager.inputText += keyEvent.char
         ScreenManager.canvas.itemconfig(ScreenManager.inputAnzeige, text=f"Input: {ScreenManager.inputText}")

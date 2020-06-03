@@ -79,6 +79,16 @@ class Event(Objekt):
         #TODO: ausprogrammieren
         self.zeichne()
 
+    def verstecke(self):
+        from ScreenManager import ScreenManager
+        self.unfokusiere()
+        # rufe entferne für die Zeiten auf, damit diese vom Canvas gelöscht werden können
+        self.startzeit.entferne()
+        self.endzeit.entferne()
+        # lösche das Event vom Canvas
+        for form in self.form:
+            ScreenManager.canvas.delete(form)
+
     def entferne(self):
         from EventManager import EventManager
         from ScreenManager import ScreenManager

@@ -2,14 +2,23 @@ from Objekt import Objekt
 from datetime import date, timedelta
 
 class Zeit(Objekt):
+    @staticmethod
+    def intervalFromString(text):
+        pos = text.find("-")
+        if pos != -1:
+            zeit1 = Zeit.fromString(text[0:pos])
+            zeit2 = Zeit.fromString(text[pos+1:])
+            if zeit1 is not None and zeit2 is not None: return (zeit1, zeit2)
+        return (None, None)
     # Bestimmt die Zeit aus einem String, kann entweder im Format 12 oder 12:00 gemacht werden
     @staticmethod
     def fromString(text):
+        from TimeManager import TimeManager
         if len(text) <= 2:
             try:
                 stunde = int(text)
                 if 0 <= stunde <= 24:
-                    zeit = Zeit(stunde, 0)
+                    zeit = Zeit(stunde, 0, None)
                     return zeit
                 else:
                     return None
@@ -22,14 +31,16 @@ class Zeit(Objekt):
                 stunde = int(text[:pos])
                 minute = int(text[pos +1 :])
                 if 0 <= stunde <= 24 and 0 <= minute <= 60:
-                    zeit = Zeit(stunde, minute)
+                    zeit = Zeit(stunde, minute, None)
                     return zeit
                 else:
                     return None
             except ValueError:
                 return None
 
+
     def __init__(self, stunde, minute, datum=date.today(),event=None):
+
         self.stunde = stunde
         self.minute = minute
         self.datum = datum
@@ -38,18 +49,33 @@ class Zeit(Objekt):
         self.form = []
         self.id = None
     def __str__(self):
-        if self.event is None:
-            return f"Zeit {self.stunde:02}:{self.minute:02} am {self.datum.strftime('%d.%m.%Y')}"
+        if self.datum is None:
+            if self.event is None:
+                return f"Zeit {self.stunde:02}:{self.minute:02}"
+            else:
+                return f"Zeit {self.stunde:02}:{self.minute:02} zu Event {self.event}"
         else:
-            return f"Zeit {self.stunde:02}:{self.minute:02} am {self.datum.strftime('%d.%m.%Y')} zu Event {self.event}"
+            if self.event is None:
+                return f"Zeit {self.stunde:02}:{self.minute:02} am {self.datum.strftime('%d.%m.%Y')}"
+            else:
+                return f"Zeit {self.stunde:02}:{self.minute:02} am {self.datum.strftime('%d.%m.%Y')} zu Event {self.event}"
 
     def __add__(self, other):
         assert (not (self.event is not None and other.event is not None) or self.event == other.event)
         #assert (self.stunde + other.stunde + (self.minute + other.minute) / 60 <= 24) #achtung, Stunde kann damit > 24 sein!
-        assert self.datum == other.datum
+        #assert self.datum == other.datum
         stunde = self.stunde + other.stunde
         minute = self.minute + other.minute
-        datum = self.datum
+
+        if self.datum is None:
+            datum = other.datum
+        elif other.datum is None:
+            datum = self.datum
+        elif self.datum != date.today():
+            datum = self.datum
+        else:
+            datum = other.datum
+
         if minute >= 60:
             stunde += 1
             minute -= 60
@@ -62,16 +88,16 @@ class Zeit(Objekt):
         return Zeit(stunde, minute, datum, event)
 
     def __gt__(self, other):
-        if self.datum > other.datum: return True
-        if self.datum < other.datum: return False
+        #if self.datum > other.datum: return True
+        #if self.datum < other.datum: return False
         if self.stunde > other.stunde: return True
         if self.stunde < other.stunde: return False
         if self.minute > other.minute: return True
         return False
 
     def __ge__(self, other):
-        if self.datum > other.datum: return True
-        if self.datum < other.datum: return False
+        #if self.datum > other.datum: return True
+        #if self.datum < other.datum: return False
         if self.stunde > other.stunde: return True
         if self.stunde < other.stunde: return False
         if self.minute >= other.minute: return True
@@ -84,10 +110,17 @@ class Zeit(Objekt):
         return not (self > other)
 
     def __sub__(self, other):
-        assert self.datum == other.datum
+        #assert self.datum == other.datum
         stunde = self.stunde - other.stunde
         minute = self.minute - other.minute
-        datum = self.datum
+        if self.datum is None:
+            datum = other.datum
+        elif other.datum is None:
+            datum = self.datum
+        elif self.datum != date.today():
+            datum = self.datum
+        else:
+            datum = other.datum
         if minute < 0:
             stunde -= 1
             minute += 60
@@ -102,7 +135,7 @@ class Zeit(Objekt):
     def __eq__(self, other):
         if self is None and other is None: return True
         if self is None or other is None: return False
-        return self.datum == other.datum and self.stunde == other.stunde and self.minute == other.minute
+        return self.stunde == other.stunde and self.minute == other.minute
 
     def setEvent(self, event):
         self.event = event
@@ -116,6 +149,8 @@ class Zeit(Objekt):
     def erhalteDatum(self):
         return self.datum.strftime('%d.%m.%Y')
 
+    def erhalteDatumLang(self):
+        return self.datum.strftime('%A %d.%m')
     def verschiebeAufMorgen(self):
         self.datum += timedelta(days=1)
         return self
@@ -126,7 +161,7 @@ class Zeit(Objekt):
 
     def circa(self, zeit):
         from TimeManager import TimeManager as TM
-        if self.datum == zeit.datum and (TM.null <= (self - zeit) <= TM.genauigkeit or TM.null <= (zeit - self) <= TM.genauigkeit):
+        if (TM.null <= (self - zeit) <= TM.genauigkeit or TM.null <= (zeit - self) <= TM.genauigkeit):
             return True
         return False
 

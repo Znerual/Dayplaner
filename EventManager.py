@@ -5,8 +5,8 @@ from Db import Db
 class EventManager:
     events = []
     mittagspause = Event(TimeManager.mittagspauseStart, TimeManager.mittagspauseEnde, False, "Mittagspause")
-    eventLaenge = Zeit(1,30)
-    pausenLaenge = Zeit(0,10)
+    eventLaenge = Zeit(1,30, None)
+    pausenLaenge = Zeit(0,10, None)
     #Es hat passieren können das beim Verschieben zwei Elemente exakt übereinder ilegen und damit beide
     # nicht in die oevents List hinzugefügt werden
     @staticmethod
@@ -180,6 +180,7 @@ class EventManager:
     def verschiebeZeitNach(event, istStartzeit, zeit):
         # überprüft ob verschiebung erlaubt
         deltaZeit = event.endzeit - event.startzeit
+        deltaZeit.datum = None
         if istStartzeit:
             if event.endzeit - zeit <= TimeManager.null:
                 event.startzeit.set(zeit)
@@ -225,6 +226,7 @@ class EventManager:
     @staticmethod
     def trenneEvent(event, zeit):
         deltaZeit = event.endzeit - zeit
+        deltaZeit.datum = None
         deltaZeit.event = None #damit es bei der Addition zu keinen Problemen kommt, weil beide Zeiten mit Events verknüpft sind
         if deltaZeit < TimeManager.null or zeit < event.startzeit: return  # Zeit zum Aufeilen liegt nicht im Event
 
@@ -303,8 +305,9 @@ class EventManager:
 
     @staticmethod
     def ladeEvents():
+        from TimeManager import TimeManager
         if not Db.initialisiert: Db.init()
-        events = Db.erhalteAlleHeutigenEvents(Db.conn)
+        events = Db.erhalteAlleEventsAm(Db.conn, TimeManager.aktuellesDatum.datum)
         if len(events) > 0:
             EventManager.events = events
             for event in EventManager.events:
