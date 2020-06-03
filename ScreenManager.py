@@ -172,13 +172,14 @@ class ScreenManager:
             #Parse different input
             zeit = Zeit.fromString(ScreenManager.inputText)
             zeit1, zeit2 = Zeit.intervalFromString(ScreenManager.inputText)
-            zeit1.datum = zeit2.datum = zeit.datum = TimeManager.aktuellesDatum.datum
 
             #reset the input Text
             ScreenManager.inputText = ""
             if zeit is not None:
                 ScreenManager.select(zeit)
+                zeit.datum = TimeManager.aktuellesDatum.datum
             elif zeit1 is not None and zeit2 is not None:
+                zeit1.datum = zeit2.datum = TimeManager.aktuellesDatum.datum
                 if (TimeManager.aufstehzeit <= zeit1 < TimeManager.mittagspauseStart and zeit1 < zeit2 <= TimeManager.mittagspauseStart ) or (TimeManager.mittagspauseEnde <= zeit1 < TimeManager.schlafenszeit and zeit1 < zeit2 <= TimeManager.schlafenszeit):
                     neuesEvent = EventManager.addEvent(Event(zeit1, zeit2))
                     ScreenManager.ausgewaehlt = neuesEvent
@@ -192,12 +193,14 @@ class ScreenManager:
         elif keyEvent.keysym == "Delete":
             pass
         elif keyEvent.keysym == "Right":
+            EventManager.speichereEvents()
             TimeManager.aktuellesDatum.verschiebeAufMorgen()
             for event in EventManager.events:
                 event.verstecke()
             EventManager.ladeEvents()
             ScreenManager.canvas.itemconfig(ScreenManager.datumAnzeige, text=TimeManager.aktuellesDatum.erhalteDatumLang())
         elif keyEvent.keysym == "Left":
+            EventManager.speichereEvents()
             TimeManager.aktuellesDatum.verschiebeAufGestern()
             for event in EventManager.events:
                 event.verstecke()
