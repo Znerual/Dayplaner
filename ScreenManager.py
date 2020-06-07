@@ -79,16 +79,14 @@ class ScreenManager:
         for zeit in TM.zeiten:
            zeit.zeichne()
 
-    def zeichneEvent(self):
-        pass
-
-        #passe Genauigkeit an die neue Skalierung an, runde danach auf schöne 5 Min Intervalle
+        # passe Genauigkeit an die neue Skalierung an, runde danach auf schöne 5 Min Intervalle
         TM.genauigkeit.vonMinuten((TM.schlafenszeit - TM.aufstehzeit).zeitInMinuten() / TM.genauigkeitsfaktor)
-        TM.genauigkeit = TM.genauigkeit.runde(Zeit(0,5, None))
+        TM.genauigkeit = TM.genauigkeit.runde(Zeit(0, 5, None))
 
-        #Inputanzeige und Datumanzeige korrekt verschieben
-        ScreenManager.canvas.coords(ScreenManager.inputAnzeige,20, int(ScreenManager.canvasHeight - 20))
-        ScreenManager.canvas.coords(ScreenManager.datumAnzeige,int(ScreenManager.canvasWidth/2), 20,)
+
+        # Inputanzeige und Datumanzeige korrekt verschieben
+        ScreenManager.canvas.coords(ScreenManager.inputAnzeige, 20, int(ScreenManager.canvasHeight - 20))
+        ScreenManager.canvas.coords(ScreenManager.datumAnzeige, int(ScreenManager.canvasWidth / 2), 20, )
 
     @staticmethod
     def run():
@@ -184,8 +182,8 @@ class ScreenManager:
             #reset the input Text
             ScreenManager.inputText = ""
             if zeit is not None:
-                ScreenManager.select(zeit, True)
                 zeit.datum = TimeManager.aktuellesDatum.datum
+                ScreenManager.select(zeit, True)
             elif zeit1 is not None and zeit2 is not None:
                 zeit1.datum = zeit2.datum = TimeManager.aktuellesDatum.datum
                 if (TimeManager.aufstehzeit <= zeit1 < TimeManager.mittagspauseStart and zeit1 < zeit2 <= TimeManager.mittagspauseStart ) or (TimeManager.mittagspauseEnde <= zeit1 < TimeManager.schlafenszeit and zeit1 < zeit2 <= TimeManager.schlafenszeit):
