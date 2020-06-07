@@ -256,12 +256,12 @@ class Zeit(Objekt):
                 SM.canvas.itemconfig(self.form[0], fill=Farbkonzept.Linien())
                 SM.canvas.itemconfig(self.form[1], fill=Farbkonzept.Linien())
                 SM.canvas.itemconfig(self.form[2], text=self.text)
-            if self.event.startzeit == self:
+            elif self.event.startzeit == self:
                 SM.canvas.coords(self.form[0], x1, y1, x2, y1)
                 SM.canvas.coords(self.form[1], xVerschiebung, y1 + yVerschiebung)
                 SM.canvas.itemconfig(self.form[0], fill=Farbkonzept.Linien())
                 SM.canvas.itemconfig(self.form[1], text=self.text)
-            if self.event.endzeit == self:
+            elif self.event.endzeit == self:
                 SM.canvas.coords(self.form[0], x1, y1, x2, y1)
                 SM.canvas.coords(self.form[1], SM.canvasWidth-xVerschiebung, y1-yVerschiebung)
                 SM.canvas.itemconfig(self.form[0], fill=Farbkonzept.Linien())
