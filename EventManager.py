@@ -5,8 +5,10 @@ from Db import Db
 class EventManager:
     events = []
     mittagspause = Event(TimeManager.mittagspauseStart, TimeManager.mittagspauseEnde, False, "Mittagspause")
+
     eventLaenge = Zeit(1,30, None)
     pausenLaenge = Zeit(0,10, None)
+
     #Es hat passieren können das beim Verschieben zwei Elemente exakt übereinder ilegen und damit beide
     # nicht in die oevents List hinzugefügt werden
     @staticmethod

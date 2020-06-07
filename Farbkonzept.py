@@ -1,4 +1,6 @@
+#from tkinter import tkfont
 
+#font=tkfont.Font(family='Bell MT')
 class Farbkonzept:
     @staticmethod
     def vormittag():
@@ -26,16 +28,11 @@ class Farbkonzept:
 
     # Linien
     @staticmethod
-    def Linien(element):
-        color = '#a7adba'
-        element.configure(bg=color)
-        return color
-
+    def Linien():
+        return '#a7adba'
 
     @staticmethod
-    def Linien_markiert(element):
-        color = '#5d5d5d'
-        element.configure(bg=color)
-        return color
+    def Linien_markiert():
+        return '#5d5d5d'
 
 

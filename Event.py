@@ -54,24 +54,39 @@ class Event(Objekt):
 
     def zeichne(self):
         from ScreenManager import ScreenManager as SM
+        from TimeManager import TimeManager as TM
         from Farbkonzept import Farbkonzept
 
         #TODO: VM - NM unterscheiden
         #
-        x1 = 0
+        x1 = SM.canvasWidth/30
         y1 = SM.zeitZuPixel(self.startzeit)
 
-        x2 = SM.canvasWidth
+        x2 = x1*29
         y2 = SM.zeitZuPixel(self.endzeit)
 
         if len(self.form) == 0:
-            self.form.append(SM.canvas.create_rectangle(x1, y1, x2, y2 ,fill=Farbkonzept.vormittag()))
-            self.form.append(SM.canvas.create_text(int((x2 - x1) / 2), int(y1 + (y2-y1)/2), text=self.text))
+            if self.endzeit <= TM.mittagspauseStart:
+                self.form.append(SM.canvas.create_rectangle(x1, y1, x2, y2 ,fill=Farbkonzept.vormittag(), outline=''))
+            if self.startzeit >= TM.mittagspauseEnde:
+                self.form.append(SM.canvas.create_rectangle(x1, y1, x2, y2, fill=Farbkonzept.nachmittag(), outline=''))
+            if self.startzeit >= TM.mittagspauseStart and self.endzeit <=TM.mittagspauseEnde:
+                self.form.append(SM.canvas.create_rectangle(x1, y1, x2, y2 ,fill=Farbkonzept.mittagspause(),outline=''))
+            self.form.append(SM.canvas.create_text(SM.canvasWidth/2, int(y1 + (y2 - y1) / 2), text=self.text, font=("BellMT",10)))
+
         else:
             SM.canvas.coords(self.form[0], x1, y1, x2, y2)
-            SM.canvas.coords(self.form[1], int((x2 - x1) / 2), int(y1 + (y2-y1)/2))
-            SM.canvas.itemconfig(self.form[0], fill=Farbkonzept.vormittag())
-            SM.canvas.itemconfig(self.form[1], fill=Farbkonzept.nachmittag(), text=self.text)
+            SM.canvas.coords(self.form[1], SM.canvasWidth/2, int(y1 + (y2-y1)/2))
+            if self.endzeit <= TM.mittagspauseStart:
+                SM.canvas.itemconfig(self.form[0], fill=Farbkonzept.vormittag())
+                SM.canvas.itemconfig(self.form[1], text=self.text)#fill=Farbkonzept.vormittag_markiert()
+            elif self.startzeit >= TM.mittagspauseEnde:
+                SM.canvas.itemconfig(self.form[0], fill=Farbkonzept.nachmittag())
+                SM.canvas.itemconfig(self.form[1], text=self.text)
+            elif self.startzeit >= TM.mittagspauseStart and self.endzeit <= TM.mittagspauseEnde:
+                SM.canvas.itemconfig(self.form[0], fill=Farbkonzept.mittagspause())
+                SM.canvas.itemconfig(self.form[1], text=self.text)
+
         self.startzeit.zeichne()
         self.endzeit.zeichne()
 
@@ -110,3 +125,4 @@ class Event(Objekt):
         from ScreenManager import ScreenManager
         ScreenManager.canvas.unbind("<Key>")
         ScreenManager.canvas.bind("<Key>", ScreenManager.keyInput)
+

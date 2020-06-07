@@ -225,22 +225,48 @@ class Zeit(Objekt):
         from ScreenManager import ScreenManager as SM
         from Farbkonzept import Farbkonzept
 
-        #TODO: Vormittag - Nachmittag Unterscheidung
-        #TODO: Schritart anpassen
-        x1 = 0
+        #TODO: Vormittag - Nachmittag Unterscheidung //sollten linien verschiedene farben haben?
+        x1 = SM.canvasWidth/30
         y1 = SM.zeitZuPixel(self)
-
-        x2 = SM.canvasWidth
+        x2 = x1*29
+        x_mitteStart = SM.canvasWidth/2 - 2*x1
+        x_mitteEnde = SM.canvasWidth/2 + 2*x1
+        yVerschiebung= SM.canvasHeight/80
+        xVerschiebung=x1*3
 
 
         if len(self.form) == 0:
-            self.form.append(SM.canvas.create_line(x1, y1, x2, y1, fill=Farbkonzept.vormittag_markiert()))
-            self.form.append(SM.canvas.create_text(int((x2 - x1) / 2), y1, fill="Black",text=self.text))
+
+            if self.event is None: #achtung form kann jetzt 2 oder 3 einträge haben
+                self.form.append(SM.canvas.create_line(x1, y1, x_mitteStart, y1, fill=Farbkonzept.Linien()))
+                self.form.append(SM.canvas.create_line(x_mitteEnde, y1, x2, y1, fill=Farbkonzept.Linien()))
+                self.form.append(SM.canvas.create_text(SM.canvasWidth/2, y1, text=self.text,font=("BellMT",8)))
+            elif self.event.startzeit==self:
+                self.form.append(SM.canvas.create_line(x1, y1, x2, y1, fill=Farbkonzept.Linien()))
+                self.form.append(SM.canvas.create_text(xVerschiebung, y1+yVerschiebung, text=self.text, font=("BellMT", 8)))
+            elif self.event.endzeit==self:
+                self.form.append(SM.canvas.create_line(x1, y1, x2, y1, fill=Farbkonzept.Linien()))
+                self.form.append(SM.canvas.create_text(SM.canvasWidth-xVerschiebung, y1 - yVerschiebung, text=self.text, font=("BellMT", 8)))
+            #elif what happended
         else:
-            SM.canvas.coords(self.form[0], x1, y1, x2, y1)
-            SM.canvas.coords(self.form[1], int((x2 - x1) / 2), y1)
-            SM.canvas.itemconfig(self.form[0], fill=Farbkonzept.vormittag())
-            SM.canvas.itemconfig(self.form[1], fill="Black", text=self.text)
+            if self.event is None:
+                SM.canvas.coords(self.form[0], x1, y1, x_mitteStart, y1)
+                SM.canvas.coords(self.form[1], x_mitteEnde, y1, x2,y1)
+                SM.canvas.coords(self.form[2], SM.canvasWidth/2, y1 )
+                SM.canvas.itemconfig(self.form[0], fill=Farbkonzept.Linien())
+                SM.canvas.itemconfig(self.form[1], fill=Farbkonzept.Linien())
+                SM.canvas.itemconfig(self.form[2], text=self.text)
+            if self.event.startzeit == self:
+                SM.canvas.coords(self.form[0], x1, y1, x2, y1)
+                SM.canvas.coords(self.form[1], xVerschiebung, y1 + yVerschiebung)
+                SM.canvas.itemconfig(self.form[0], fill=Farbkonzept.Linien())
+                SM.canvas.itemconfig(self.form[1], text=self.text)
+            if self.event.endzeit == self:
+                SM.canvas.coords(self.form[0], x1, y1, x2, y1)
+                SM.canvas.coords(self.form[1], SM.canvasWidth-xVerschiebung, y1-yVerschiebung)
+                SM.canvas.itemconfig(self.form[0], fill=Farbkonzept.Linien())
+                SM.canvas.itemconfig(self.form[1], text=self.text)#könnten hier jeweils noch mit fill die textfarbe ändern
+
 
     def zeichneMarkiert(self):
         self.zeichne()

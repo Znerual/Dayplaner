@@ -77,7 +77,10 @@ class ScreenManager:
 
         #zeichne wichtige Linien
         for zeit in TM.zeiten:
-            zeit.zeichne()
+           zeit.zeichne()
+
+    def zeichneEvent(self):
+        pass
 
         #passe Genauigkeit an die neue Skalierung an, runde danach auf schöne 5 Min Intervalle
         TM.genauigkeit.vonMinuten((TM.schlafenszeit - TM.aufstehzeit).zeitInMinuten() / TM.genauigkeitsfaktor)
