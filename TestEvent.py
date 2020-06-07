@@ -3,7 +3,7 @@ from Event import Event
 from Zeit import Zeit
 from EventManager import EventManager as EM
 from TimeManager import TimeManager as TM
-
+from ScreenManager import ScreenManager as SM
 # Hier wird die Klasse Event sowie die Klasse EventManager getestet
 class TestEvent(unittest.TestCase):
     def test_schneiden(self):
@@ -36,11 +36,12 @@ class TestEvent(unittest.TestCase):
         zeit1 = Zeit(14, 0)
         event1 = Event(zeit1, Zeit(15, 0))
 
-        self.assertEqual(str(event1), "Start 14:00 Ende 15:00")
-        self.assertEqual(str(zeit1), "Zeit 14:00 zu Event Start 14:00 Ende 15:00")
+        self.assertEqual(str(event1), f"Start 14:00 Ende 15:00 am {zeit1.erhalteDatum()}")
+        self.assertEqual(str(zeit1), f"Zeit 14:00 am {zeit1.erhalteDatum()} zu Event Start 14:00 Ende 15:00 am {zeit1.erhalteDatum()}")
 
     def test_addEvent(self):
         EM.events = []
+        SM.init()
         event1 = Event(Zeit(14, 30), Zeit(15, 00))
         event2 = Event(Zeit(16, 30), Zeit(17, 00))
         event3 = Event(Zeit(14, 45), Zeit(17, 00))
@@ -49,8 +50,8 @@ class TestEvent(unittest.TestCase):
         EM.addEvent(event1)
         EM.addEvent(event2)
         # hinzufügen ohne Überlapp
-        self.assertEqual(str(EM.events[0]), "Start 14:30 Ende 15:00")
-        self.assertEqual(str(EM.events[1]), "Start 16:30 Ende 17:00")
+        self.assertEqual(str(EM.events[0]), f"Start 14:30 Ende 15:00 am {EM.events[0].startzeit.erhalteDatum()}")
+        self.assertEqual(str(EM.events[1]), f"Start 16:30 Ende 17:00 am {EM.events[1].startzeit.erhalteDatum()}")
 
         # mit überlapp
         EM.addEvent(event3)

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
+    <data-source source="LOCAL" name="events" uuid="594bb28b-9fdd-4417-8274-43b1dc490911">
+      <driver-ref>sqlite.xerial</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
+      <jdbc-url>jdbc:sqlite:D:\Code\Python\Dayplaner\events.dat</jdbc-url>
+    </data-source>
+    <data-source source="LOCAL" name="zeiten" uuid="63f03fdc-5d10-41e0-936b-1e0699d98cdb">
+      <driver-ref>sqlite.xerial</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
+      <jdbc-url>jdbc:sqlite:D:\Code\Python\Dayplaner\zeiten.dat</jdbc-url>
+    </data-source>
+    <data-source source="LOCAL" name="saved" uuid="b3f5b55a-8c59-4900-b0bd-427b2a8c89c1">
+      <driver-ref>sqlite.xerial</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
+      <jdbc-url>jdbc:sqlite:D:\Code\Python\Dayplaner\saved.dat</jdbc-url>
+    </data-source>
+  </component>
+</project>

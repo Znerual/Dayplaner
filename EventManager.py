@@ -1,13 +1,14 @@
 from TimeManager import TimeManager
 from Event import Event
 from Zeit import Zeit
-
+from Db import Db
 class EventManager:
     events = []
     mittagspause = Event(TimeManager.mittagspauseStart, TimeManager.mittagspauseEnde, False, "Mittagspause")
 
-    eventLaenge = Zeit(1,30)
-    pausenLaenge = Zeit(0,10)
+    eventLaenge = Zeit(1,30, None)
+    pausenLaenge = Zeit(0,10, None)
+
     #Es hat passieren können das beim Verschieben zwei Elemente exakt übereinder ilegen und damit beide
     # nicht in die oevents List hinzugefügt werden
     @staticmethod
@@ -74,12 +75,13 @@ class EventManager:
             return event
     @staticmethod
     def removeEvent(event):
+        if not Db.initialisiert: Db.init()
         # lösche die Verknüpfungen über Vorheriges Element und folgendes Element
         if event.eventDanach is not None:
             event.eventDanach.eventDavor = None
         if event.eventDavor is not None:
             event.eventDavor.eventDanach = None
-
+        Db.entferneEvent(Db.conn, event)
         EventManager.events.remove(event)
 
     # Methode um Events zu verschieben
@@ -174,18 +176,26 @@ class EventManager:
                 elif (oevent.endzeit > event.endzeit):
                     oevent.eventDavor = event
                     event.eventDanach = oevent
-
+        event.zeichne()
     # Verschiebt eine Zeit, nur falls startzeit vor endzeit liegt
     @staticmethod
     def verschiebeZeitNach(event, istStartzeit, zeit):
         # überprüft ob verschiebung erlaubt
+        deltaZeit = event.endzeit - event.startzeit
+        deltaZeit.datum = None
         if istStartzeit:
-            if event.endzeit - zeit <= TimeManager.null: return
-            event.startzeit.set(zeit)
+            if event.endzeit - zeit <= TimeManager.null:
+                event.startzeit.set(zeit)
+                event.endzeit.set(zeit + deltaZeit)
+                event.zeichne()
+            else:
+                event.startzeit.set(zeit)
         else:
-            if zeit - event.startzeit <= TimeManager.null: return
-            event.endzeit.set(zeit)
-
+            if zeit - event.startzeit <= TimeManager.null:
+                event.endzeit.set(zeit)
+                event.startzeit.set(zeit - deltaZeit)
+            else:
+                event.endzeit.set(zeit)
         # überschneidungen korrigieren, indem die Grenzen strikt neu verändern werden. Anhängende Teile werden nicht
         # verschoben sonder gekürzt
         otherEvents = EventManager.getEventsWithoutEvent(event)
@@ -196,11 +206,13 @@ class EventManager:
                     break
                 elif oevent.startzeit < event.startzeit < oevent.endzeit:  # anderes Event schneidet von oben hinein
                     oevent.endzeit.set(event.startzeit)
+                    oevent.zeichne()
                     oevent.eventDanach = event
                     event.eventDavor = oevent
                     break
                 elif oevent.startzeit > event.startzeit and oevent.endzeit > event.endzeit:  # anderes event runtscht von unten hinein
                     oevent.startzeit.set(event.endzeit)
+                    oevent.zeichne()
                     oevent.eventDavor = event
                     event.eventDanach = oevent
                     break
@@ -211,23 +223,25 @@ class EventManager:
                 elif not istStartzeit and oevent.startzeit == event.endzeit:
                     event.eventDanach = oevent
                     oevent.eventDavor = event
-
+        event.zeichne()
     # Methode um Event in zwei kleinere Events zur Zeit zeit aufzuspalten
     @staticmethod
     def trenneEvent(event, zeit):
         deltaZeit = event.endzeit - zeit
+        deltaZeit.datum = None
         deltaZeit.event = None #damit es bei der Addition zu keinen Problemen kommt, weil beide Zeiten mit Events verknüpft sind
         if deltaZeit < TimeManager.null or zeit < event.startzeit: return  # Zeit zum Aufeilen liegt nicht im Event
 
         EventManager.verschiebeZeitNach(event, False, zeit)
         event2 = Event(event.endzeit, event.endzeit + deltaZeit)
         EventManager.addEvent(event2)
+        event.zeichne()
         return (event, event2)
     #findet event falls die Zeit zwischen inklusive Anfangszeit und exklusive Endzeit des EVents liegt
     @staticmethod
-    def findeEvent(zeit):
+    def findeEvent(zeit, genauigkeit=Zeit(0,0)):
         for event in EventManager.events:
-            if event.startzeit <= zeit < event.endzeit:
+            if event.startzeit <= zeit + genauigkeit and zeit - genauigkeit < event.endzeit:
                 return event
         return None
 
@@ -239,6 +253,26 @@ class EventManager:
             if event.endzeit > startzeit and event.startzeit < endzeit:
                 events.append(event)
         return events
+
+    @staticmethod
+    def findeKleinsteStartzeit():
+        if len(EventManager.events) == 0: return TimeManager.mittagspauseStart
+        minimum = EventManager.events[0].startzeit
+
+        for event in EventManager.events:
+            if event.startzeit < minimum:
+                minimum = event.startzeit
+        return minimum
+
+    @staticmethod
+    def findeGroessteEndzeit():
+        if len(EventManager.events) == 0: return TimeManager.mittagspauseEnde
+        maximum = EventManager.events[0].endzeit
+
+        for event in EventManager.events:
+            if event.startzeit > maximum:
+                maximum = event.endzeit
+        return maximum
 
     @staticmethod
     def hatEvent(event):
@@ -260,3 +294,23 @@ class EventManager:
                 EventManager.verschiebeEventUm(event, dauer)
             EventManager.addEvent(pause)
         return pause
+
+    @staticmethod
+    def speichereEvents():
+        if not Db.initialisiert: Db.init()
+        for event in EventManager.events:
+            if event.id is None:
+                event.id = Db.addEvent(Db.conn, event)
+            else:
+                Db.updateEvent(Db.conn, event)
+        Db.conn.commit()
+
+    @staticmethod
+    def ladeEvents():
+        from TimeManager import TimeManager
+        if not Db.initialisiert: Db.init()
+        events = Db.erhalteAlleEventsAm(Db.conn, TimeManager.aktuellesDatum.datum)
+        if len(events) > 0:
+            EventManager.events = events
+            for event in EventManager.events:
+                event.zeichne()

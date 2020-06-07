@@ -14,21 +14,15 @@ class Event(Objekt):
         self.eventDavor = None
         self.eventDanach = None
         self.form = []
-        self.veraltet = False
         self.istPause = istPause
-
+        self.id = None
     def __str__(self):
-        return f"Start {self.startzeit.stunde:02}:{self.startzeit.minute:02} Ende {self.endzeit.stunde:02}:{self.endzeit.minute:02}"
+        return f"Start {self.startzeit.stunde:02}:{self.startzeit.minute:02} Ende {self.endzeit.stunde:02}:{self.endzeit.minute:02} am {self.startzeit.erhalteDatum()}"
 
     def __eq__(self, other):
         if self is None and other is None: return True
         if self is None or other is None: return False
         return self.endzeit == other.endzeit and self.startzeit == other.startzeit
-
-    def veralten(self):
-        self.veraltet = True
-        self.startzeit.veraltet = True
-        self.endzeit.veraltet = True
 
     def schneiden(self, other):
         if (self.endzeit > other.startzeit and self.startzeit < other.endzeit) or (
@@ -100,6 +94,16 @@ class Event(Objekt):
         #TODO: ausprogrammieren
         self.zeichne()
 
+    def verstecke(self):
+        from ScreenManager import ScreenManager
+        self.unfokusiere()
+        # rufe entferne für die Zeiten auf, damit diese vom Canvas gelöscht werden können
+        self.startzeit.entferne()
+        self.endzeit.entferne()
+        # lösche das Event vom Canvas
+        for form in self.form:
+            ScreenManager.canvas.delete(form)
+
     def entferne(self):
         from EventManager import EventManager
         from ScreenManager import ScreenManager
@@ -114,8 +118,11 @@ class Event(Objekt):
             ScreenManager.canvas.delete(form)
     def fokusiere(self):
         from ScreenManager import ScreenManager
+        ScreenManager.canvas.unbind("<Key>")
         ScreenManager.canvas.bind("<Key>", self.callbackText)
 
     def unfokusiere(self):
         from ScreenManager import ScreenManager
         ScreenManager.canvas.unbind("<Key>")
+        ScreenManager.canvas.bind("<Key>", ScreenManager.keyInput)
+
