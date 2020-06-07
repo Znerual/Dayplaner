@@ -71,13 +71,15 @@ class ScreenManager:
         from Zeit import Zeit
 
         #passe Mittagspause an
-        EM.mittagspause.startzeit.set(TM.mittagspauseStart)
-        EM.mittagspause.endzeit.set(TM.mittagspauseEnde)
+        EM.mittagspause.verstecke()
+        EM.mittagspause.startzeit = TM.mittagspauseStart
+        EM.mittagspause.endzeit = TM.mittagspauseEnde
         EM.mittagspause.zeichne()
 
         #zeichne wichtige Linien
         for zeit in TM.zeiten:
-           zeit.zeichne()
+            zeit.entferne()
+            zeit.zeichne()
 
         # passe Genauigkeit an die neue Skalierung an, runde danach auf schöne 5 Min Intervalle
         TM.genauigkeit.vonMinuten((TM.schlafenszeit - TM.aufstehzeit).zeitInMinuten() / TM.genauigkeitsfaktor)
@@ -199,17 +201,37 @@ class ScreenManager:
         elif keyEvent.keysym == "Delete":
             pass
         elif keyEvent.keysym == "Right":
+            #speichere
             EventManager.speichereEvents()
+            TimeManager.speichereZeiten()
             TimeManager.aktuellesDatum.verschiebeAufMorgen()
+            # lösche die Zeiten und Events von vorherigen Tag vom Canvas
             for event in EventManager.events:
                 event.verstecke()
+            for zeit in TimeManager.zeiten:
+                zeit.entferne()
+            EventManager.mittagspause.verstecke()
+
+            #Lade und zeichne neu
+            TimeManager.ladeZeiten()
+            ScreenManager.zeichneHintergrund()
             EventManager.ladeEvents()
             ScreenManager.canvas.itemconfig(ScreenManager.datumAnzeige, text=TimeManager.aktuellesDatum.erhalteDatumLang())
         elif keyEvent.keysym == "Left":
+            #speichere
             EventManager.speichereEvents()
+            TimeManager.speichereZeiten()
             TimeManager.aktuellesDatum.verschiebeAufGestern()
+            #lösche die Zeiten und Events von vorherigen Tag vom Canvas
             for event in EventManager.events:
                 event.verstecke()
+            for zeit in TimeManager.zeiten:
+                zeit.entferne()
+            EventManager.mittagspause.verstecke()
+
+            #lade und zeichne neu
+            TimeManager.ladeZeiten()
+            ScreenManager.zeichneHintergrund()
             EventManager.ladeEvents()
             ScreenManager.canvas.itemconfig(ScreenManager.datumAnzeige, text=TimeManager.aktuellesDatum.erhalteDatumLang())
         else:

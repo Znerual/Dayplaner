@@ -10,7 +10,7 @@ class Event(Objekt):
         self.startzeit.setEvent(self)
         self.endzeit.setEvent(self)
 
-        self.text = "Test"
+        self.text = text
         self.eventDavor = None
         self.eventDanach = None
         self.form = []
@@ -90,6 +90,8 @@ class Event(Objekt):
         self.startzeit.zeichne()
         self.endzeit.zeichne()
 
+        if self.startzeit == TM.aufstehzeit or self.endzeit == TM.schlafenszeit:
+            SM.zeichneHintergrund()
     def zeichneMarkiert(self):
         #TODO: ausprogrammieren
         self.zeichne()

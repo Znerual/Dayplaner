@@ -1,14 +1,14 @@
 from Zeit import Zeit
 from Db import Db
+from datetime import date
 
 class TimeManager:
 
-    aufstehzeit = Zeit(8, 0, None)
-    aktuellesDatum = Zeit(0,0)
-    #TODO: Mittagspause hier herauslöschen und nur über EventManager.mittagspause verändern
-    mittagspauseStart = Zeit(12, 30, None)
-    mittagspauseEnde = Zeit(13, 30, None)
-    schlafenszeit = Zeit(23, 00, None)
+    aufstehzeit = Zeit(8, 0, date.today())
+    aktuellesDatum = Zeit(0,0, date.today())
+    mittagspauseStart = Zeit(12, 30, date.today())
+    mittagspauseEnde = Zeit(13, 30, date.today())
+    schlafenszeit = Zeit(23, 00, date.today())
     zeiten = (aufstehzeit, mittagspauseStart, mittagspauseEnde, schlafenszeit)
     null = Zeit(0, 0, None)
     genauigkeit = Zeit(0,10, None)
@@ -49,15 +49,23 @@ class TimeManager:
         from EventManager import EventManager as EM
         from Event import Event
         if not Db.initialisiert: Db.init()
-        zeiten = Db.erhalteAlleZeiten(Db.conn)
+        zeiten = Db.erhalteAlleZeitenAm(Db.conn, TimeManager.aktuellesDatum.datum)
         if len(zeiten) > 0:
             TimeManager.zeiten = zeiten
             TimeManager.aufstehzeit = TimeManager.zeiten[0]
             TimeManager.mittagspauseStart = TimeManager.zeiten[1]
             TimeManager.mittagspauseEnde =TimeManager.zeiten[2]
             TimeManager.schlafenszeit = TimeManager.zeiten[3]
-            EM.mittagspause = Event(TimeManager.mittagspauseStart, TimeManager.mittagspauseEnde)
-
+            EM.mittagspause = Event(TimeManager.mittagspauseStart, TimeManager.mittagspauseEnde, False, "Mittagspause")
+        else:
+            TimeManager.aufstehzeit = Zeit(8, 0, TimeManager.aktuellesDatum.datum)
+            TimeManager.aktuellesDatum = Zeit(0, 0, TimeManager.aktuellesDatum.datum)
+            TimeManager.mittagspauseStart = Zeit(12, 30, TimeManager.aktuellesDatum.datum)
+            TimeManager.mittagspauseEnde = Zeit(13, 30, TimeManager.aktuellesDatum.datum)
+            TimeManager.schlafenszeit = Zeit(23, 00, TimeManager.aktuellesDatum.datum)
+            TimeManager.zeiten = (TimeManager.aufstehzeit, TimeManager.mittagspauseStart, TimeManager.mittagspauseEnde, TimeManager.schlafenszeit)
+        for zeit in TimeManager.zeiten:
+            zeit.zeichne()
     @staticmethod
     def speichereZeiten():
         if not Db.initialisiert: Db.init()

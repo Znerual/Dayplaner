@@ -35,7 +35,8 @@ class Db:
 
         sql_create_zeiten_table = """CREATE TABLE IF NOT EXISTS zeiten (
                                         id integer PRIMARY KEY,
-                                        zeitMin integer
+                                        zeitMin integer,
+                                        dateOrdinal integer
                                     );"""
 
         Db.erstelleTabelle(Db.conn, sql_create_events_table)
@@ -84,10 +85,13 @@ class Db:
 
     @staticmethod
     def addZeit(conn, zeit):
-        sql = ''' INSERT INTO zeiten(zeitMin)
-                              VALUES(?) '''
+        sql = ''' INSERT INTO zeiten(zeitMin, dateOrdinal)
+                              VALUES(?, ?) '''
         cur = conn.cursor()
-        cur.execute(sql, (zeit.zeitInMinuten(),))
+        datum = 0
+        if zeit.datum is not None:
+            datum = zeit.datum.toordinal()
+        cur.execute(sql, (zeit.zeitInMinuten(), datum))
         return cur.lastrowid
 
     @staticmethod
@@ -123,10 +127,14 @@ class Db:
         :return: project id
         """
         sql = ''' UPDATE zeiten
-                  SET zeitMin = ?
+                  SET zeitMin = ?,
+                      dateOrdinal = ?
                   WHERE id = ?'''
         cur = conn.cursor()
-        cur.execute(sql, (zeit.zeitInMinuten(), zeit.id))
+        datum = 0
+        if zeit.datum is not None:
+            datum = zeit.datum.toordinal()
+        cur.execute(sql, (zeit.zeitInMinuten(), datum, zeit.id))
         conn.commit()
 
     @staticmethod
@@ -210,6 +218,26 @@ class Db:
         zeiten = []
         for row in rows:
             zeit = Zeit(0, 0)
+            zeit.id = row[0]
+            zeit.vonMinuten(row[1])
+            zeiten.append(zeit)
+        return zeiten
+
+    @staticmethod
+    def erhalteAlleZeitenAm(conn, datum=date.today()):
+        from Zeit import Zeit
+        """
+        Query all rows in the tasks table
+        :param conn: the Connection object
+        :return:
+        """
+        cur = conn.cursor()
+        cur.execute('''SELECT * FROM zeiten WHERE dateOrdinal = ?''', (datum.toordinal(),))
+
+        rows = cur.fetchall()
+        zeiten = []
+        for row in rows:
+            zeit = Zeit(0, 0, datum)
             zeit.id = row[0]
             zeit.vonMinuten(row[1])
             zeiten.append(zeit)

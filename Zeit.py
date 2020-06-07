@@ -252,6 +252,8 @@ class Zeit(Objekt):
             if self.event is None:
                 SM.canvas.coords(self.form[0], x1, y1, x_mitteStart, y1)
                 SM.canvas.coords(self.form[1], x_mitteEnde, y1, x2,y1)
+                SM.canvas.delete(self.form[2])
+                self.form[2] = SM.canvas.create_text(SM.canvasWidth/2, y1, text=self.text,font=("BellMT",10))
                 SM.canvas.coords(self.form[2], SM.canvasWidth/2, y1 )
                 SM.canvas.itemconfig(self.form[0], fill=Farbkonzept.Linien())
                 SM.canvas.itemconfig(self.form[1], fill=Farbkonzept.Linien())
@@ -279,6 +281,7 @@ class Zeit(Objekt):
         #lösche die Zeitelemente vom Canvas
         for form in self.form:
             ScreenManager.canvas.delete(form)
+        self.form = []
 
     def fokusiere(self):
         from ScreenManager import ScreenManager
