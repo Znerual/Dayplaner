@@ -16,7 +16,7 @@ class ScreenManager:
     inputText = ""
 
     datumAnzeige = None
-
+    jahrAnzeige =  None
     @staticmethod
     def zeitZuPixel(zeit):
         from TimeManager import TimeManager
@@ -63,6 +63,7 @@ class ScreenManager:
         ScreenManager.canvasHeight = ScreenManager.canvas.winfo_height()
         ScreenManager.inputAnzeige = ScreenManager.canvas.create_text(20, int(ScreenManager.canvasHeight - 20), text="Input:", anchor=SW)
         ScreenManager.datumAnzeige = ScreenManager.canvas.create_text(ScreenManager.canvasWidth/2, 20, text=TimeManager.aktuellesDatum.erhalteDatumLang())
+        ScreenManager.jahrAnzeige =ScreenManager.canvas.create_text(ScreenManager.canvasWidth/2, 40, text=TimeManager.aktuellesDatum.erhalteDatumJahr())
         ScreenManager.canvas.bind("<Key>", ScreenManager.keyInput)
     @staticmethod
     def zeichneHintergrund():
@@ -91,6 +92,7 @@ class ScreenManager:
         # Inputanzeige und Datumanzeige korrekt verschieben
         ScreenManager.canvas.coords(ScreenManager.inputAnzeige, 20, int(ScreenManager.canvasHeight - 20))
         ScreenManager.canvas.coords(ScreenManager.datumAnzeige, int(ScreenManager.canvasWidth / 2), 20, )
+        ScreenManager.canvas.coords(ScreenManager.jahrAnzeige, int(ScreenManager.canvasWidth / 2), 40, )
 
     @staticmethod
     def run():
@@ -214,8 +216,10 @@ class ScreenManager:
                 TimeManager.ladeZeiten()
                 EventManager.ladeEvents()
                 ScreenManager.zeichneHintergrund()
-                ScreenManager.canvas.itemconfig(ScreenManager.datumAnzeige,
-                                                text=TimeManager.aktuellesDatum.erhalteDatumLang())
+                ScreenManager.canvas.itemconfig(ScreenManager.datumAnzeige,text=TimeManager.aktuellesDatum.erhalteDatumLang())
+                ScreenManager.canvas.itemconfig(ScreenManager.jahrAnzeige,text=TimeManager.aktuellesDatum.erhalteDatumJahr())
+
+
         elif keyEvent.keysym == "BackSpace":
             ScreenManager.inputText = ScreenManager.inputText[:-1]
         elif keyEvent.keysym == "Delete":
@@ -237,6 +241,7 @@ class ScreenManager:
             ScreenManager.zeichneHintergrund()
             EventManager.ladeEvents()
             ScreenManager.canvas.itemconfig(ScreenManager.datumAnzeige, text=TimeManager.aktuellesDatum.erhalteDatumLang())
+            ScreenManager.canvas.itemconfig(ScreenManager.jahrAnzeige, text=TimeManager.aktuellesDatum.erhalteDatumJahr())
         elif keyEvent.keysym == "Left":
             #speichere
             EventManager.speichereEvents()
@@ -254,6 +259,7 @@ class ScreenManager:
             ScreenManager.zeichneHintergrund()
             EventManager.ladeEvents()
             ScreenManager.canvas.itemconfig(ScreenManager.datumAnzeige, text=TimeManager.aktuellesDatum.erhalteDatumLang())
+            ScreenManager.canvas.itemconfig(ScreenManager.jahrAnzeige, text=TimeManager.aktuellesDatum.erhalteDatumJahr())
         else:
             ScreenManager.inputText += keyEvent.char
         ScreenManager.canvas.itemconfig(ScreenManager.inputAnzeige, text=f"Input: {ScreenManager.inputText}")

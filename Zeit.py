@@ -9,16 +9,19 @@ class Zeit(Objekt):
         try:
             if opos != -1:
                 tag = int(text[:opos])
+                mj = text[opos +1:]
                 if opos == len(text)-1:
                     datum = Zeit(0, 0, date(date.today().year, date.today().month, tag))
                     return datum
-                pos = text[opos+1:].find(".")
+                pos = mj.find(".")
                 if pos != -1:
-                    monat = int(text[opos+1:pos])
-                    datum = Zeit(0,0,date(date.today().year, monat, tag))
+                    monat = int(mj[:pos])
+                    jahr = int(mj[pos + 1:])
+                    datum = Zeit(0, 0, date(jahr, monat, tag))
                     return datum
                 else:
                     monat = int(text[opos+1:])
+
                     datum = Zeit(0, 0, date(date.today().year, monat, tag))
                     return datum
         except:
@@ -173,6 +176,9 @@ class Zeit(Objekt):
 
     def erhalteDatumLang(self):
         return self.datum.strftime('%A %d.%m')
+
+    def erhalteDatumJahr(self):
+        return self.datum.strftime('%Y')
 
     def verschiebeAufMorgen(self):
         self.datum += timedelta(days=1)
