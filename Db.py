@@ -163,6 +163,8 @@ class Db:
             event.text = row[1]
             event.startzeit.datum = date.fromordinal(row[4])
             event.endzeit.datum = event.startzeit.datum
+            zeitStart.event = event
+            zeitEnde.event = event
             if row[5] == 1: event.istPause = True
             if row[5] == 2:
                 EM.mittagspause = event
@@ -197,6 +199,8 @@ class Db:
             event.text = row[1]
             event.startzeit.datum = date.fromordinal(row[4])
             event.endzeit.datum = event.startzeit.datum
+            zeitStart.event = event
+            zeitEnde.event = event
             if row[5] == 1: event.istPause = True
             if row[5] == 2:
                 EM.mittagspause = event

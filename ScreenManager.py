@@ -72,6 +72,8 @@ class ScreenManager:
 
         #passe Mittagspause an
         EM.mittagspause.verstecke()
+        TM.mittagspauseStart.event = EM.mittagspause
+        TM.mittagspauseEnde.event = EM.mittagspause
         EM.mittagspause.startzeit = TM.mittagspauseStart
         EM.mittagspause.endzeit = TM.mittagspauseEnde
         EM.mittagspause.zeichne()
@@ -180,7 +182,7 @@ class ScreenManager:
             #Parse different input
             zeit = Zeit.fromString(ScreenManager.inputText)
             zeit1, zeit2 = Zeit.intervalFromString(ScreenManager.inputText)
-
+            datum = Zeit.dateFromString(ScreenManager.inputText)
             #reset the input Text
             ScreenManager.inputText = ""
             if zeit is not None:
@@ -195,7 +197,25 @@ class ScreenManager:
                     ScreenManager.ausgewaehlt.fokusiere()
                 else:
                     ScreenManager.inputText = "Invalid Input for Interval"
+            elif datum is not None:
+                # speichere
+                EventManager.speichereEvents()
+                TimeManager.speichereZeiten()
+                #verschiebe
+                TimeManager.aktuellesDatum.datum = datum.datum
+                # lösche die Zeiten und Events von vorherigen Tag vom Canvas
+                for event in EventManager.events:
+                    event.verstecke()
+                for zeit in TimeManager.zeiten:
+                    zeit.entferne()
+                EventManager.mittagspause.verstecke()
 
+                # Lade und zeichne neu
+                TimeManager.ladeZeiten()
+                EventManager.ladeEvents()
+                ScreenManager.zeichneHintergrund()
+                ScreenManager.canvas.itemconfig(ScreenManager.datumAnzeige,
+                                                text=TimeManager.aktuellesDatum.erhalteDatumLang())
         elif keyEvent.keysym == "BackSpace":
             ScreenManager.inputText = ScreenManager.inputText[:-1]
         elif keyEvent.keysym == "Delete":

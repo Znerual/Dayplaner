@@ -57,6 +57,9 @@ class TimeManager:
             TimeManager.mittagspauseEnde =TimeManager.zeiten[2]
             TimeManager.schlafenszeit = TimeManager.zeiten[3]
             EM.mittagspause = Event(TimeManager.mittagspauseStart, TimeManager.mittagspauseEnde, False, "Mittagspause")
+            TimeManager.mittagspauseStart.event = EM.mittagspause
+            TimeManager.mittagspauseEnde.event = EM.mittagspause
+
         else:
             TimeManager.aufstehzeit = Zeit(8, 0, TimeManager.aktuellesDatum.datum)
             TimeManager.aktuellesDatum = Zeit(0, 0, TimeManager.aktuellesDatum.datum)
@@ -64,6 +67,9 @@ class TimeManager:
             TimeManager.mittagspauseEnde = Zeit(13, 30, TimeManager.aktuellesDatum.datum)
             TimeManager.schlafenszeit = Zeit(23, 00, TimeManager.aktuellesDatum.datum)
             TimeManager.zeiten = (TimeManager.aufstehzeit, TimeManager.mittagspauseStart, TimeManager.mittagspauseEnde, TimeManager.schlafenszeit)
+            EM.mittagspause = Event(TimeManager.mittagspauseStart, TimeManager.mittagspauseEnde, False, "Mittagspause")
+            TimeManager.mittagspauseStart.event = EM.mittagspause
+            TimeManager.mittagspauseEnde.event = EM.mittagspause
         for zeit in TimeManager.zeiten:
             zeit.zeichne()
     @staticmethod

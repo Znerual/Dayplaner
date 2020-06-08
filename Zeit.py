@@ -2,6 +2,28 @@ from Objekt import Objekt
 from datetime import date, timedelta
 
 class Zeit(Objekt):
+
+    @staticmethod
+    def dateFromString(text):
+        opos = text.find(".")
+        try:
+            if opos != -1:
+                tag = int(text[:opos])
+                if opos == len(text)-1:
+                    datum = Zeit(0, 0, date(date.today().year, date.today().month, tag))
+                    return datum
+                pos = text[opos+1:].find(".")
+                if pos != -1:
+                    monat = int(text[opos+1:pos])
+                    datum = Zeit(0,0,date(date.today().year, monat, tag))
+                    return datum
+                else:
+                    monat = int(text[opos+1:])
+                    datum = Zeit(0, 0, date(date.today().year, monat, tag))
+                    return datum
+        except:
+            return None
+
     @staticmethod
     def intervalFromString(text):
         pos = text.find("-")
@@ -151,6 +173,7 @@ class Zeit(Objekt):
 
     def erhalteDatumLang(self):
         return self.datum.strftime('%A %d.%m')
+
     def verschiebeAufMorgen(self):
         self.datum += timedelta(days=1)
         return self
@@ -158,6 +181,7 @@ class Zeit(Objekt):
     def verschiebeAufGestern(self):
         self.datum += timedelta(days=-1)
         return self
+
 
     def circa(self, zeit, genauigkeit = None):
         from TimeManager import TimeManager as TM

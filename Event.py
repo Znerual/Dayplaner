@@ -105,7 +105,7 @@ class Event(Objekt):
         # lösche das Event vom Canvas
         for form in self.form:
             ScreenManager.canvas.delete(form)
-
+        self.form = []
     def entferne(self):
         from EventManager import EventManager
         from ScreenManager import ScreenManager
@@ -118,6 +118,7 @@ class Event(Objekt):
         #lösche das Event vom Canvas
         for form in self.form:
             ScreenManager.canvas.delete(form)
+        self.form = []
     def fokusiere(self):
         from ScreenManager import ScreenManager
         ScreenManager.canvas.unbind("<Key>")
