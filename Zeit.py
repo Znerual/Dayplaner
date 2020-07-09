@@ -305,6 +305,7 @@ class Zeit(Objekt):
         from Farbkonzept import Farbkonzept
 
         self.zeichne()
+
         if self.event is None:
             SM.canvas.itemconfig(self.form[0], fill=Farbkonzept.Linien_markiert())
             SM.canvas.itemconfig(self.form[1], fill=Farbkonzept.Linien_markiert())

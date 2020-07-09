@@ -50,7 +50,8 @@ class TimeManager:
         from Event import Event
         if not Db.initialisiert: Db.init()
         zeiten = Db.erhalteAlleZeitenAm(Db.conn, TimeManager.aktuellesDatum.datum)
-        if len(zeiten) > 0:
+        print(f"Datum in Ordianl {TimeManager.aktuellesDatum.datum.toordinal()}")
+        if len(zeiten) == 4:
             TimeManager.zeiten = zeiten
             TimeManager.aufstehzeit = TimeManager.zeiten[0]
             TimeManager.mittagspauseStart = TimeManager.zeiten[1]
