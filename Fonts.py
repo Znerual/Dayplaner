@@ -7,3 +7,8 @@ root = Tk.Tk()
 print(tkFont.families())
 print(tkFont.names())
 #Bell MT
+#Ebrima
+#Cambria
+#Franklin Gothic Medium
+#Dubai - gibts nicht
+#Gill Sans MT -gibts nicht

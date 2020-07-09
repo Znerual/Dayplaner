@@ -57,8 +57,7 @@ class Event(Objekt):
         from TimeManager import TimeManager as TM
         from Farbkonzept import Farbkonzept
 
-        #TODO: VM - NM unterscheiden
-        #
+
         x1 = SM.canvasWidth/30
         y1 = SM.zeitZuPixel(self.startzeit)
 
@@ -72,7 +71,7 @@ class Event(Objekt):
                 self.form.append(SM.canvas.create_rectangle(x1, y1, x2, y2, fill=Farbkonzept.nachmittag(), outline=''))
             if self.startzeit >= TM.mittagspauseStart and self.endzeit <=TM.mittagspauseEnde:
                 self.form.append(SM.canvas.create_rectangle(x1, y1, x2, y2 ,fill=Farbkonzept.mittagspause(),outline=''))
-            self.form.append(SM.canvas.create_text(SM.canvasWidth/2, int(y1 + (y2 - y1) / 2), text=self.text, font=("BellMT",10)))
+            self.form.append(SM.canvas.create_text(SM.canvasWidth/2, int(y1 + (y2 - y1) / 2), text=self.text, font=("Dubai",10)))
 
         else:
             SM.canvas.coords(self.form[0], x1, y1, x2, y2)
@@ -91,8 +90,19 @@ class Event(Objekt):
         self.endzeit.zeichne()
 
     def zeichneMarkiert(self):
-        #TODO: ausprogrammieren
-        self.zeichne()
+        from ScreenManager import ScreenManager as SM
+        from TimeManager import TimeManager as TM
+        from Farbkonzept import Farbkonzept
+
+        if self.endzeit <= TM.mittagspauseStart:
+            SM.canvas.itemconfig(self.form[0], fill=Farbkonzept.vormittag_markiert())
+        elif self.startzeit >= TM.mittagspauseEnde:
+            SM.canvas.itemconfig(self.form[0], fill=Farbkonzept.nachmittag_markiert())
+        elif self.startzeit >= TM.mittagspauseStart and self.endzeit <= TM.mittagspauseEnde:
+            SM.canvas.itemconfig(self.form[0], fill=Farbkonzept.mittagspause_markiert())
+
+        self.startzeit.zeichneMarkiert()
+        self.endzeit.zeichneMarkiert()
 
     def verstecke(self):
         from ScreenManager import ScreenManager
