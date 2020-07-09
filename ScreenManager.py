@@ -5,6 +5,7 @@ class ScreenManager:
     root = None
     canvas = None
 
+
     screenWidth = 0
     screenHeight = 0
     canvasWidth = 0
@@ -45,7 +46,12 @@ class ScreenManager:
   
     @staticmethod
     def init():
+        import pyglet
         from TimeManager import TimeManager
+
+        pyglet.font.add_file("Cinzel-Regular.ttf")
+        pyglet.font.add_file("Lora-VariableFont_wght.ttf")
+
         ScreenManager.root = Tk()
         ScreenManager.root.title("Tagesplaner")
         ScreenManager.screenWidth = int(ScreenManager.root.winfo_screenwidth() / 3)
@@ -61,9 +67,9 @@ class ScreenManager:
         ScreenManager.canvas.focus_set()
         ScreenManager.canvasWidth = ScreenManager.canvas.winfo_width()
         ScreenManager.canvasHeight = ScreenManager.canvas.winfo_height()
-        ScreenManager.inputAnzeige = ScreenManager.canvas.create_text(20, int(ScreenManager.canvasHeight - 20), text="Input:", anchor=SW)
-        ScreenManager.datumAnzeige = ScreenManager.canvas.create_text(ScreenManager.canvasWidth/2, 20, text=TimeManager.aktuellesDatum.erhalteDatumLang())
-        ScreenManager.jahrAnzeige =ScreenManager.canvas.create_text(ScreenManager.canvasWidth/2, 40, text=TimeManager.aktuellesDatum.erhalteDatumJahr())
+        ScreenManager.inputAnzeige = ScreenManager.canvas.create_text(20, int(ScreenManager.canvasHeight - 20), text="Input:", anchor=SW,font=("lora", 9))
+        ScreenManager.datumAnzeige = ScreenManager.canvas.create_text(ScreenManager.canvasWidth/2, 20, text=TimeManager.aktuellesDatum.erhalteDatumLang(),font=("lora", 9))
+        ScreenManager.jahrAnzeige =ScreenManager.canvas.create_text(ScreenManager.canvasWidth/2, 40, text=TimeManager.aktuellesDatum.erhalteDatumJahr(),font=("lora", 9))
         ScreenManager.canvas.bind("<Key>", ScreenManager.keyInput)
     @staticmethod
     def zeichneHintergrund():

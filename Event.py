@@ -71,7 +71,7 @@ class Event(Objekt):
                 self.form.append(SM.canvas.create_rectangle(x1, y1, x2, y2, fill=Farbkonzept.nachmittag(), outline=''))
             if self.startzeit >= TM.mittagspauseStart and self.endzeit <=TM.mittagspauseEnde:
                 self.form.append(SM.canvas.create_rectangle(x1, y1, x2, y2 ,fill=Farbkonzept.mittagspause(),outline=''))
-            self.form.append(SM.canvas.create_text(SM.canvasWidth/2, int(y1 + (y2 - y1) / 2), text=self.text, font=("Dubai",10)))
+            self.form.append(SM.canvas.create_text(SM.canvasWidth/2, int(y1 + (y2 - y1) / 2), text=self.text, font=("Lora",9)))
 
         else:
             SM.canvas.coords(self.form[0], x1, y1, x2, y2)
@@ -95,6 +95,8 @@ class Event(Objekt):
         from ScreenManager import ScreenManager as SM
         from TimeManager import TimeManager as TM
         from Farbkonzept import Farbkonzept
+
+        self.zeichne()
 
         if self.endzeit <= TM.mittagspauseStart:
             SM.canvas.itemconfig(self.form[0], fill=Farbkonzept.vormittag_markiert())
