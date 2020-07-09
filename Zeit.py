@@ -255,7 +255,7 @@ class Zeit(Objekt):
         from ScreenManager import ScreenManager as SM
         from Farbkonzept import Farbkonzept
 
-        #TODO: Vormittag - Nachmittag Unterscheidung //sollten linien verschiedene farben haben?
+
         x1 = SM.canvasWidth/30
         y1 = SM.zeitZuPixel(self)
         x2 = x1*29
@@ -301,8 +301,16 @@ class Zeit(Objekt):
 
 
     def zeichneMarkiert(self):
-        self.zeichne()
-        #TODO: Ausprogrammieren
+        from ScreenManager import ScreenManager as SM
+        from Farbkonzept import Farbkonzept
+
+        if self.event is None:
+            SM.canvas.itemconfig(self.form[0], fill=Farbkonzept.Linien_markiert())
+            SM.canvas.itemconfig(self.form[1], fill=Farbkonzept.Linien_markiert())
+        if self.event.startzeit == self:
+            SM.canvas.itemconfig(self.form[0], fill=Farbkonzept.Linien_markiert())
+        if self.event.endzeit == self:
+            SM.canvas.itemconfig(self.form[0], fill=Farbkonzept.Linien_markiert())
 
     def entferne(self):
         from ScreenManager import ScreenManager

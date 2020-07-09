@@ -79,6 +79,7 @@ class ScreenManager:
         EM.mittagspause.endzeit = TM.mittagspauseEnde
         EM.mittagspause.zeichne()
 
+
         #zeichne wichtige Linien
         for zeit in TM.zeiten:
             zeit.entferne()
