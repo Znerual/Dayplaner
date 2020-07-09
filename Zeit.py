@@ -304,12 +304,14 @@ class Zeit(Objekt):
         from ScreenManager import ScreenManager as SM
         from Farbkonzept import Farbkonzept
 
+        self.zeichne()
+
         if self.event is None:
             SM.canvas.itemconfig(self.form[0], fill=Farbkonzept.Linien_markiert())
             SM.canvas.itemconfig(self.form[1], fill=Farbkonzept.Linien_markiert())
-        if self.event.startzeit == self:
+        elif self.event.startzeit == self:
             SM.canvas.itemconfig(self.form[0], fill=Farbkonzept.Linien_markiert())
-        if self.event.endzeit == self:
+        elif self.event.endzeit == self:
             SM.canvas.itemconfig(self.form[0], fill=Farbkonzept.Linien_markiert())
 
     def entferne(self):

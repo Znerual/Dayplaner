@@ -96,6 +96,8 @@ class Event(Objekt):
         from TimeManager import TimeManager as TM
         from Farbkonzept import Farbkonzept
 
+        self.zeichne()
+
         if self.endzeit <= TM.mittagspauseStart:
             SM.canvas.itemconfig(self.form[0], fill=Farbkonzept.vormittag_markiert())
         elif self.startzeit >= TM.mittagspauseEnde:
