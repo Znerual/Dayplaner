@@ -4,11 +4,17 @@ if sys.version_info.major == 3:
 else:
     import Tkinter as Tk, tkFont
 root = Tk.Tk()
+
 print(tkFont.families())
 print(tkFont.names())
+
 #Bell MT
 #Ebrima
 #Cambria
 #Franklin Gothic Medium
 #Dubai - gibts nicht
 #Gill Sans MT -gibts nicht
+
+if "Bell MT" in tkFont.families():print("In Familie")
+if "Bell MT" in tkFont.names(): print("In Names")
+

@@ -10,7 +10,7 @@ class Event(Objekt):
         self.startzeit.setEvent(self)
         self.endzeit.setEvent(self)
 
-        self.text = "Test"
+        self.text = text
         self.eventDavor = None
         self.eventDanach = None
         self.form = []
@@ -89,6 +89,8 @@ class Event(Objekt):
         self.startzeit.zeichne()
         self.endzeit.zeichne()
 
+        if self.startzeit == TM.aufstehzeit or self.endzeit == TM.schlafenszeit:
+            SM.zeichneHintergrund()
     def zeichneMarkiert(self):
         from ScreenManager import ScreenManager as SM
         from TimeManager import TimeManager as TM
@@ -113,7 +115,7 @@ class Event(Objekt):
         # lösche das Event vom Canvas
         for form in self.form:
             ScreenManager.canvas.delete(form)
-
+        self.form = []
     def entferne(self):
         from EventManager import EventManager
         from ScreenManager import ScreenManager
@@ -126,6 +128,7 @@ class Event(Objekt):
         #lösche das Event vom Canvas
         for form in self.form:
             ScreenManager.canvas.delete(form)
+        self.form = []
     def fokusiere(self):
         from ScreenManager import ScreenManager
         ScreenManager.canvas.unbind("<Key>")

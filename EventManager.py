@@ -5,7 +5,8 @@ from Db import Db
 class EventManager:
     events = []
     mittagspause = Event(TimeManager.mittagspauseStart, TimeManager.mittagspauseEnde, False, "Mittagspause")
-
+    TimeManager.mittagspauseStart.event = mittagspause
+    TimeManager.mittagspauseEnde.event = mittagspause
     eventLaenge = Zeit(1,30, None)
     pausenLaenge = Zeit(0,10, None)
 

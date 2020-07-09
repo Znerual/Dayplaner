@@ -16,7 +16,7 @@ class ScreenManager:
     inputText = ""
 
     datumAnzeige = None
-
+    jahrAnzeige =  None
     @staticmethod
     def zeitZuPixel(zeit):
         from TimeManager import TimeManager
@@ -63,6 +63,7 @@ class ScreenManager:
         ScreenManager.canvasHeight = ScreenManager.canvas.winfo_height()
         ScreenManager.inputAnzeige = ScreenManager.canvas.create_text(20, int(ScreenManager.canvasHeight - 20), text="Input:", anchor=SW)
         ScreenManager.datumAnzeige = ScreenManager.canvas.create_text(ScreenManager.canvasWidth/2, 20, text=TimeManager.aktuellesDatum.erhalteDatumLang())
+        ScreenManager.jahrAnzeige =ScreenManager.canvas.create_text(ScreenManager.canvasWidth/2, 40, text=TimeManager.aktuellesDatum.erhalteDatumJahr())
         ScreenManager.canvas.bind("<Key>", ScreenManager.keyInput)
     @staticmethod
     def zeichneHintergrund():
@@ -71,25 +72,28 @@ class ScreenManager:
         from Zeit import Zeit
 
         #passe Mittagspause an
-        EM.mittagspause.startzeit.set(TM.mittagspauseStart)
-        EM.mittagspause.endzeit.set(TM.mittagspauseEnde)
+        EM.mittagspause.verstecke()
+        TM.mittagspauseStart.event = EM.mittagspause
+        TM.mittagspauseEnde.event = EM.mittagspause
+        EM.mittagspause.startzeit = TM.mittagspauseStart
+        EM.mittagspause.endzeit = TM.mittagspauseEnde
         EM.mittagspause.zeichne()
 
 
         #zeichne wichtige Linien
         for zeit in TM.zeiten:
-           zeit.zeichne()
+            zeit.entferne()
+            zeit.zeichne()
 
-    def zeichneEvent(self):
-        pass
-
-        #passe Genauigkeit an die neue Skalierung an, runde danach auf schöne 5 Min Intervalle
+        # passe Genauigkeit an die neue Skalierung an, runde danach auf schöne 5 Min Intervalle
         TM.genauigkeit.vonMinuten((TM.schlafenszeit - TM.aufstehzeit).zeitInMinuten() / TM.genauigkeitsfaktor)
-        TM.genauigkeit = TM.genauigkeit.runde(Zeit(0,5, None))
+        TM.genauigkeit = TM.genauigkeit.runde(Zeit(0, 5, None))
 
-        #Inputanzeige und Datumanzeige korrekt verschieben
-        ScreenManager.canvas.coords(ScreenManager.inputAnzeige,20, int(ScreenManager.canvasHeight - 20))
-        ScreenManager.canvas.coords(ScreenManager.datumAnzeige,int(ScreenManager.canvasWidth/2), 20,)
+
+        # Inputanzeige und Datumanzeige korrekt verschieben
+        ScreenManager.canvas.coords(ScreenManager.inputAnzeige, 20, int(ScreenManager.canvasHeight - 20))
+        ScreenManager.canvas.coords(ScreenManager.datumAnzeige, int(ScreenManager.canvasWidth / 2), 20, )
+        ScreenManager.canvas.coords(ScreenManager.jahrAnzeige, int(ScreenManager.canvasWidth / 2), 40, )
 
     @staticmethod
     def run():
@@ -181,12 +185,12 @@ class ScreenManager:
             #Parse different input
             zeit = Zeit.fromString(ScreenManager.inputText)
             zeit1, zeit2 = Zeit.intervalFromString(ScreenManager.inputText)
-
+            datum = Zeit.dateFromString(ScreenManager.inputText)
             #reset the input Text
             ScreenManager.inputText = ""
             if zeit is not None:
-                ScreenManager.select(zeit, True)
                 zeit.datum = TimeManager.aktuellesDatum.datum
+                ScreenManager.select(zeit, True)
             elif zeit1 is not None and zeit2 is not None:
                 zeit1.datum = zeit2.datum = TimeManager.aktuellesDatum.datum
                 if (TimeManager.aufstehzeit <= zeit1 < TimeManager.mittagspauseStart and zeit1 < zeit2 <= TimeManager.mittagspauseStart ) or (TimeManager.mittagspauseEnde <= zeit1 < TimeManager.schlafenszeit and zeit1 < zeit2 <= TimeManager.schlafenszeit):
@@ -196,25 +200,67 @@ class ScreenManager:
                     ScreenManager.ausgewaehlt.fokusiere()
                 else:
                     ScreenManager.inputText = "Invalid Input for Interval"
+            elif datum is not None:
+                # speichere
+                EventManager.speichereEvents()
+                TimeManager.speichereZeiten()
+                #verschiebe
+                TimeManager.aktuellesDatum.datum = datum.datum
+                # lösche die Zeiten und Events von vorherigen Tag vom Canvas
+                for event in EventManager.events:
+                    event.verstecke()
+                for zeit in TimeManager.zeiten:
+                    zeit.entferne()
+                EventManager.mittagspause.verstecke()
+
+                # Lade und zeichne neu
+                TimeManager.ladeZeiten()
+                EventManager.ladeEvents()
+                ScreenManager.zeichneHintergrund()
+                ScreenManager.canvas.itemconfig(ScreenManager.datumAnzeige,text=TimeManager.aktuellesDatum.erhalteDatumLang())
+                ScreenManager.canvas.itemconfig(ScreenManager.jahrAnzeige,text=TimeManager.aktuellesDatum.erhalteDatumJahr())
+
 
         elif keyEvent.keysym == "BackSpace":
             ScreenManager.inputText = ScreenManager.inputText[:-1]
         elif keyEvent.keysym == "Delete":
             pass
         elif keyEvent.keysym == "Right":
+            #speichere
             EventManager.speichereEvents()
+            TimeManager.speichereZeiten()
             TimeManager.aktuellesDatum.verschiebeAufMorgen()
+            # lösche die Zeiten und Events von vorherigen Tag vom Canvas
             for event in EventManager.events:
                 event.verstecke()
+            for zeit in TimeManager.zeiten:
+                zeit.entferne()
+            EventManager.mittagspause.verstecke()
+
+            #Lade und zeichne neu
+            TimeManager.ladeZeiten()
+            ScreenManager.zeichneHintergrund()
             EventManager.ladeEvents()
             ScreenManager.canvas.itemconfig(ScreenManager.datumAnzeige, text=TimeManager.aktuellesDatum.erhalteDatumLang())
+            ScreenManager.canvas.itemconfig(ScreenManager.jahrAnzeige, text=TimeManager.aktuellesDatum.erhalteDatumJahr())
         elif keyEvent.keysym == "Left":
+            #speichere
             EventManager.speichereEvents()
+            TimeManager.speichereZeiten()
             TimeManager.aktuellesDatum.verschiebeAufGestern()
+            #lösche die Zeiten und Events von vorherigen Tag vom Canvas
             for event in EventManager.events:
                 event.verstecke()
+            for zeit in TimeManager.zeiten:
+                zeit.entferne()
+            EventManager.mittagspause.verstecke()
+
+            #lade und zeichne neu
+            TimeManager.ladeZeiten()
+            ScreenManager.zeichneHintergrund()
             EventManager.ladeEvents()
             ScreenManager.canvas.itemconfig(ScreenManager.datumAnzeige, text=TimeManager.aktuellesDatum.erhalteDatumLang())
+            ScreenManager.canvas.itemconfig(ScreenManager.jahrAnzeige, text=TimeManager.aktuellesDatum.erhalteDatumJahr())
         else:
             ScreenManager.inputText += keyEvent.char
         ScreenManager.canvas.itemconfig(ScreenManager.inputAnzeige, text=f"Input: {ScreenManager.inputText}")

@@ -2,6 +2,31 @@ from Objekt import Objekt
 from datetime import date, timedelta
 
 class Zeit(Objekt):
+
+    @staticmethod
+    def dateFromString(text):
+        opos = text.find(".")
+        try:
+            if opos != -1:
+                tag = int(text[:opos])
+                mj = text[opos +1:]
+                if opos == len(text)-1:
+                    datum = Zeit(0, 0, date(date.today().year, date.today().month, tag))
+                    return datum
+                pos = mj.find(".")
+                if pos != -1:
+                    monat = int(mj[:pos])
+                    jahr = int(mj[pos + 1:])
+                    datum = Zeit(0, 0, date(jahr, monat, tag))
+                    return datum
+                else:
+                    monat = int(text[opos+1:])
+
+                    datum = Zeit(0, 0, date(date.today().year, monat, tag))
+                    return datum
+        except:
+            return None
+
     @staticmethod
     def intervalFromString(text):
         pos = text.find("-")
@@ -151,6 +176,10 @@ class Zeit(Objekt):
 
     def erhalteDatumLang(self):
         return self.datum.strftime('%A %d.%m')
+
+    def erhalteDatumJahr(self):
+        return self.datum.strftime('%Y')
+
     def verschiebeAufMorgen(self):
         self.datum += timedelta(days=1)
         return self
@@ -158,6 +187,7 @@ class Zeit(Objekt):
     def verschiebeAufGestern(self):
         self.datum += timedelta(days=-1)
         return self
+
 
     def circa(self, zeit, genauigkeit = None):
         from TimeManager import TimeManager as TM
@@ -240,28 +270,30 @@ class Zeit(Objekt):
             if self.event is None: #achtung form kann jetzt 2 oder 3 einträge haben
                 self.form.append(SM.canvas.create_line(x1, y1, x_mitteStart, y1, fill=Farbkonzept.Linien()))
                 self.form.append(SM.canvas.create_line(x_mitteEnde, y1, x2, y1, fill=Farbkonzept.Linien()))
-                self.form.append(SM.canvas.create_text(SM.canvasWidth/2, y1, text=self.text,font=("BellMT",8)))
+                self.form.append(SM.canvas.create_text(SM.canvasWidth/2, y1, text=self.text,font=("BellMT",10)))
             elif self.event.startzeit==self:
                 self.form.append(SM.canvas.create_line(x1, y1, x2, y1, fill=Farbkonzept.Linien()))
-                self.form.append(SM.canvas.create_text(xVerschiebung, y1+yVerschiebung, text=self.text, font=("BellMT", 8)))
+                self.form.append(SM.canvas.create_text(xVerschiebung, y1+yVerschiebung, text=self.text, font=("BellMT", 10)))
             elif self.event.endzeit==self:
                 self.form.append(SM.canvas.create_line(x1, y1, x2, y1, fill=Farbkonzept.Linien()))
-                self.form.append(SM.canvas.create_text(SM.canvasWidth-xVerschiebung, y1 - yVerschiebung, text=self.text, font=("BellMT", 8)))
+                self.form.append(SM.canvas.create_text(SM.canvasWidth-xVerschiebung, y1 - yVerschiebung, text=self.text, font=("BellMT", 10)))
             #elif what happended
         else:
             if self.event is None:
                 SM.canvas.coords(self.form[0], x1, y1, x_mitteStart, y1)
                 SM.canvas.coords(self.form[1], x_mitteEnde, y1, x2,y1)
+                SM.canvas.delete(self.form[2])
+                self.form[2] = SM.canvas.create_text(SM.canvasWidth/2, y1, text=self.text,font=("BellMT",10))
                 SM.canvas.coords(self.form[2], SM.canvasWidth/2, y1 )
                 SM.canvas.itemconfig(self.form[0], fill=Farbkonzept.Linien())
                 SM.canvas.itemconfig(self.form[1], fill=Farbkonzept.Linien())
                 SM.canvas.itemconfig(self.form[2], text=self.text)
-            if self.event.startzeit == self:
+            elif self.event.startzeit == self:
                 SM.canvas.coords(self.form[0], x1, y1, x2, y1)
                 SM.canvas.coords(self.form[1], xVerschiebung, y1 + yVerschiebung)
                 SM.canvas.itemconfig(self.form[0], fill=Farbkonzept.Linien())
                 SM.canvas.itemconfig(self.form[1], text=self.text)
-            if self.event.endzeit == self:
+            elif self.event.endzeit == self:
                 SM.canvas.coords(self.form[0], x1, y1, x2, y1)
                 SM.canvas.coords(self.form[1], SM.canvasWidth-xVerschiebung, y1-yVerschiebung)
                 SM.canvas.itemconfig(self.form[0], fill=Farbkonzept.Linien())
@@ -287,6 +319,7 @@ class Zeit(Objekt):
         #lösche die Zeitelemente vom Canvas
         for form in self.form:
             ScreenManager.canvas.delete(form)
+        self.form = []
 
     def fokusiere(self):
         from ScreenManager import ScreenManager
